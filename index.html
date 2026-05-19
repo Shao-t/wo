@@ -262,19 +262,19 @@
       <div id="airline-tabs">
         <div class="tab-btn" id="tab-JX" onclick="switchAirline('JX')">
           <div class="tab-dot" id="dot-JX"></div>
-          <span class="tab-label" id="label-JX" data-short="星宇">STARLUX</span>
+          <span class="tab-label" id="label-JX" data-short="STARLUX">STARLUX</span>
         </div>
         <div class="tab-btn" id="tab-BR" onclick="switchAirline('BR')">
           <div class="tab-dot" id="dot-BR"></div>
-          <span class="tab-label" id="label-BR" data-short="長榮">EVA AIR</span>
+          <span class="tab-label" id="label-BR" data-short="EVA AIR">EVA AIR</span>
         </div>
         <div class="tab-btn" id="tab-CI" onclick="switchAirline('CI')">
           <div class="tab-dot" id="dot-CI"></div>
-          <span class="tab-label" id="label-CI" data-short="華航">CHINA AIR</span>
+          <span class="tab-label" id="label-CI" data-short="CHINA AIR">CHINA AIR</span>
         </div>
         <div class="tab-btn" id="tab-MU" onclick="switchAirline('MU')">
           <div class="tab-dot" id="dot-MU"></div>
-          <span class="tab-label" id="label-MU" data-short="東方">CHINA EAST</span>
+          <span class="tab-label" id="label-MU" data-short="CHINA EAST">CHINA EAST</span>
         </div>
       </div>
     </div>
@@ -286,7 +286,6 @@
       <div class="stat-divider"></div>
       <div class="stat-item">
         <span class="stat-value" id="stat-name" style="color:#1d1d1f; font-size:16px">星宇航空</span>
-        <span class="stat-sub">Taiwan Carrier</span>
       </div>
     </div>
   </div>
@@ -605,11 +604,6 @@ function updateUI() {
 }
 
 function showCard(d, id) {
-  if (isTouchDevice) {
-    closeRoutePopup();
-    renderInfoCard(d, id);
-    return;
-  }
   openRoutePopup(d, id, false);
 }
 
