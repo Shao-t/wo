@@ -67,11 +67,43 @@
       }
       #header {
         height: auto;
-        min-height: 74px;
-        padding: 10px 12px;
+        min-height: 54px;
+        padding: 5px 8px;
       }
-      #header-left { gap: 8px; }
-      #search-wrap { top: 84px; width: calc(100vw - 24px); max-width: 320px; }
+      #header-left {
+        gap: 5px;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      #airline-tabs {
+        gap: 1px;
+        padding: 2px;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .tab-btn {
+        padding: 4px 7px;
+        gap: 3px;
+      }
+      .tab-label {
+        font-size: 9px;
+        letter-spacing: 0.01em;
+      }
+      #stats {
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .stat-item { align-items: flex-end; min-width: 0; }
+      .stat-value { font-size: 12px; }
+      .stat-sub { font-size: 9px; }
+      #stat-name {
+        font-size: 11px !important;
+        max-width: 94px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #search-wrap { top: 74px; width: calc(100vw - 24px); max-width: 320px; }
       .leaflet-tooltip { font-size: 11px !important; }
     }
 
@@ -506,7 +538,14 @@ function showAirline(id) {
       if (!isTouchDevice) closeRoutePopup();
     });
     route.hit.on("click", (e) => {
-      if (e.originalEvent) L.DomEvent.stopPropagation(e.originalEvent);
+      if (isTouchDevice) return;
+      if (e.originalEvent) L.DomEvent.stop(e.originalEvent);
+      else L.DomEvent.stopPropagation(e);
+      showCard(d, id);
+    });
+    route.hit.on("touchend", (e) => {
+      if (!isTouchDevice) return;
+      if (e.originalEvent) L.DomEvent.stop(e.originalEvent);
       showCard(d, id);
     });
   });
