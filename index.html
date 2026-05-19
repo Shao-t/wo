@@ -65,45 +65,60 @@
         width: auto;
         max-width: none;
       }
+      /* 手機 header：改為兩行垂直堆疊 */
       #header {
         height: auto;
-        min-height: 54px;
-        padding: 5px 8px;
+        min-height: unset;
+        padding: 8px 10px 6px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        justify-content: flex-start;
       }
       #header-left {
-        gap: 5px;
-        flex: 1 1 auto;
-        min-width: 0;
+        width: 100%;
+        gap: 0;
       }
+      /* tabs 撐滿整行，每個 tab 均分 */
       #airline-tabs {
-        gap: 1px;
-        padding: 2px;
-        flex: 1 1 auto;
-        min-width: 0;
+        width: 100%;
+        display: flex;
+        gap: 2px;
+        padding: 3px;
       }
       .tab-btn {
-        padding: 4px 7px;
-        gap: 3px;
+        flex: 1;
+        justify-content: center;
+        padding: 5px 4px;
+        gap: 4px;
+        min-width: 0;
       }
       .tab-label {
-        font-size: 9px;
-        letter-spacing: 0.01em;
-      }
-      #stats {
-        gap: 8px;
-        flex-shrink: 0;
-      }
-      .stat-item { align-items: flex-end; min-width: 0; }
-      .stat-value { font-size: 12px; }
-      .stat-sub { font-size: 9px; }
-      #stat-name {
-        font-size: 11px !important;
-        max-width: 94px;
+        font-size: 10px;
+        letter-spacing: 0.02em;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      #search-wrap { top: 74px; width: calc(100vw - 24px); max-width: 320px; }
+      /* stats 獨佔第二行，靠左排列 */
+      #stats {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 10px;
+        padding: 0 2px;
+      }
+      .stat-item { align-items: flex-start; }
+      .stat-value { font-size: 13px; }
+      .stat-sub { font-size: 9px; }
+      #stat-name {
+        font-size: 13px !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
+      }
+      /* search 跟著 header 高度下移 */
+      #search-wrap { top: 110px; width: calc(100vw - 24px); max-width: 360px; }
       .leaflet-tooltip { font-size: 11px !important; }
     }
 
@@ -247,19 +262,19 @@
       <div id="airline-tabs">
         <div class="tab-btn" id="tab-JX" onclick="switchAirline('JX')">
           <div class="tab-dot" id="dot-JX"></div>
-          <span class="tab-label" id="label-JX">STARLUX</span>
+          <span class="tab-label" id="label-JX" data-short="星宇">STARLUX</span>
         </div>
         <div class="tab-btn" id="tab-BR" onclick="switchAirline('BR')">
           <div class="tab-dot" id="dot-BR"></div>
-          <span class="tab-label" id="label-BR">EVA AIR</span>
+          <span class="tab-label" id="label-BR" data-short="長榮">EVA AIR</span>
         </div>
         <div class="tab-btn" id="tab-CI" onclick="switchAirline('CI')">
           <div class="tab-dot" id="dot-CI"></div>
-          <span class="tab-label" id="label-CI">CHINA AIRLINES</span>
+          <span class="tab-label" id="label-CI" data-short="華航">CHINA AIR</span>
         </div>
         <div class="tab-btn" id="tab-MU" onclick="switchAirline('MU')">
           <div class="tab-dot" id="dot-MU"></div>
-          <span class="tab-label" id="label-MU">CHINA EASTERN</span>
+          <span class="tab-label" id="label-MU" data-short="東方">CHINA EAST</span>
         </div>
       </div>
     </div>
@@ -337,7 +352,13 @@ function mapCoord(c, iata) {
 }
 const isTouchDevice = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
 const markerRadius = isTouchDevice ? 7 : 4;
-const hitRadius = isTouchDevice ? 18 : 10;
+const hitRadius = isTouchDevice ? 20 : 10;
+// 手機端使用短標籤避免擁擠
+if (isTouchDevice) {
+  document.querySelectorAll(".tab-label[data-short]").forEach(el => {
+    el.textContent = el.dataset.short;
+  });
+}
 let activeRoutePopup = null;
 function estimateFlightTime(distanceKm) {
   // Very rough block-time estimate: cruise + taxi/takeoff/landing overhead.
@@ -475,6 +496,21 @@ window.addEventListener("DOMContentLoaded", () => {
     if (isTouchDevice) hideInfoCard();
     else closeRoutePopup();
   });
+  // 手機端地圖拖拽後不誤觸 hideInfoCard
+  if (isTouchDevice) {
+    let _mapTouchX = 0, _mapTouchY = 0;
+    map.getContainer().addEventListener("touchstart", (e) => {
+      _mapTouchX = e.touches[0].clientX;
+      _mapTouchY = e.touches[0].clientY;
+    }, { passive: true });
+    map.getContainer().addEventListener("touchend", (e) => {
+      const t = e.changedTouches[0];
+      if (Math.abs(t.clientX - _mapTouchX) < 8 && Math.abs(t.clientY - _mapTouchY) < 8) {
+        hideInfoCard();
+      }
+    }, { passive: true });
+    map.off("click");
+  }
 
   // Build markers for all airlines
   ["JX","BR","CI","MU"].forEach(id => {
@@ -530,7 +566,7 @@ function showAirline(id) {
     if (!map.hasLayer(route.marker)) route.marker.addTo(map);
     if (!map.hasLayer(route.hit)) route.hit.addTo(map);
 
-    route.hit.off("mouseover").off("mouseout").off("click");
+    route.hit.off("mouseover").off("mouseout").off("click").off("touchstart").off("touchend");
     route.hit.on("mouseover", () => {
       if (!isTouchDevice) openRoutePopup(d, id, false);
     });
@@ -543,9 +579,21 @@ function showAirline(id) {
       else L.DomEvent.stopPropagation(e);
       showCard(d, id);
     });
+    // 手機端：用 touchstart 記錄起點，touchend 判斷是否為 tap（未發生拖拽）
+    let _touchStartX = 0, _touchStartY = 0;
+    route.hit.on("touchstart", (e) => {
+      const t = e.originalEvent.touches[0];
+      _touchStartX = t.clientX;
+      _touchStartY = t.clientY;
+    });
     route.hit.on("touchend", (e) => {
       if (!isTouchDevice) return;
-      if (e.originalEvent) L.DomEvent.stop(e.originalEvent);
+      const t = e.originalEvent.changedTouches[0];
+      const dx = Math.abs(t.clientX - _touchStartX);
+      const dy = Math.abs(t.clientY - _touchStartY);
+      // 移動超過 8px 視為拖拽，忽略
+      if (dx > 8 || dy > 8) return;
+      L.DomEvent.stop(e.originalEvent);
       showCard(d, id);
     });
   });
