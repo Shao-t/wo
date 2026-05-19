@@ -486,6 +486,7 @@ const AIRLINES = {
 
 // ── MAP INIT ──────────────────────────────────────────────────────────────────
 let map, activeAirline = initialAirline, activeLine = null;
+let mapWasDragged = false;
 const layers = { JX: {}, BR: {}, CI: {}, MU: {} };
 const hubMarkers = {};
 
@@ -496,21 +497,8 @@ window.addEventListener("DOMContentLoaded", () => {
     if (isTouchDevice) hideInfoCard();
     else closeRoutePopup();
   });
-  // 手機端地圖拖拽後不誤觸 hideInfoCard
-  if (isTouchDevice) {
-    let _mapTouchX = 0, _mapTouchY = 0;
-    map.getContainer().addEventListener("touchstart", (e) => {
-      _mapTouchX = e.touches[0].clientX;
-      _mapTouchY = e.touches[0].clientY;
-    }, { passive: true });
-    map.getContainer().addEventListener("touchend", (e) => {
-      const t = e.changedTouches[0];
-      if (Math.abs(t.clientX - _mapTouchX) < 8 && Math.abs(t.clientY - _mapTouchY) < 8) {
-        hideInfoCard();
-      }
-    }, { passive: true });
-    map.off("click");
-  }
+  map.on("dragstart", () => { mapWasDragged = true; });
+  map.on("click",    () => { mapWasDragged = false; });
 
   // Build markers for all airlines
   ["JX","BR","CI","MU"].forEach(id => {
@@ -522,7 +510,8 @@ window.addEventListener("DOMContentLoaded", () => {
       });
       visibleMarker.bindTooltip(d[0], { permanent: true, direction: "right", offset: [5, 0] });
       const hitMarker = L.circleMarker(viewCoord, {
-        radius: hitRadius, color: al.color, fillColor: al.color, fillOpacity: 0, opacity: 0, weight: 0
+        radius: hitRadius, color: al.color, fillColor: al.color, fillOpacity: 0.001, opacity: 0, weight: 0,
+        interactive: true, bubblingMouseEvents: false
       });
       layers[id][d[0]] = { marker: visibleMarker, hit: hitMarker };
     });
@@ -573,27 +562,11 @@ function showAirline(id) {
     route.hit.on("mouseout", () => {
       if (!isTouchDevice) closeRoutePopup();
     });
+    // Leaflet 在手機上把 touch tap 轉換成合成 click，直接監聽 click 即可
+    // mapWasDragged 旗標由地圖 movestart 設定，防止拖拽後誤觸
     route.hit.on("click", (e) => {
-      if (isTouchDevice) return;
+      if (mapWasDragged) { mapWasDragged = false; return; }
       if (e.originalEvent) L.DomEvent.stop(e.originalEvent);
-      else L.DomEvent.stopPropagation(e);
-      showCard(d, id);
-    });
-    // 手機端：用 touchstart 記錄起點，touchend 判斷是否為 tap（未發生拖拽）
-    let _touchStartX = 0, _touchStartY = 0;
-    route.hit.on("touchstart", (e) => {
-      const t = e.originalEvent.touches[0];
-      _touchStartX = t.clientX;
-      _touchStartY = t.clientY;
-    });
-    route.hit.on("touchend", (e) => {
-      if (!isTouchDevice) return;
-      const t = e.originalEvent.changedTouches[0];
-      const dx = Math.abs(t.clientX - _touchStartX);
-      const dy = Math.abs(t.clientY - _touchStartY);
-      // 移動超過 8px 視為拖拽，忽略
-      if (dx > 8 || dy > 8) return;
-      L.DomEvent.stop(e.originalEvent);
       showCard(d, id);
     });
   });
