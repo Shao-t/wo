@@ -474,6 +474,7 @@ const initialAirline = (() => {
 
 const STARLUX_HUB = AIRLINE_DATA.JX.hub;
 const EVA_HUB     = AIRLINE_DATA.BR.hub;
+const EVA_HUB2    = AIRLINE_DATA.BR.hub2;
 const CI_HUB      = AIRLINE_DATA.CI.hub;
 
 const AIRLINES = {
@@ -604,6 +605,7 @@ function updateUI() {
 }
 
 function showCard(d, id) {
+  renderInfoCard(d, id);
   openRoutePopup(d, id, false);
 }
 
