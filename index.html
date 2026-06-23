@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>台灣航空路線地圖</title>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WEYTQDBH2K"></script>
@@ -22,7 +22,23 @@
       background: #f5f5f7;
       overflow: hidden;
     }
-    #app { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+    body {
+      overscroll-behavior: none;
+      -webkit-text-size-adjust: 100%;
+    }
+    #app {
+      position: relative;
+      width: 100vw;
+      width: 100%;
+      height: var(--app-height, 100vh);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+    }
     #map { position: absolute; inset: 0; z-index: 1; }
 
     .leaflet-tile { filter: saturate(0.45) brightness(1.06); }
@@ -93,7 +109,7 @@
       #info-card {
         left: 12px;
         right: 12px;
-        bottom: 14px;
+        bottom: calc(14px + env(safe-area-inset-bottom));
         width: auto;
         max-width: none;
       }
@@ -101,7 +117,7 @@
       #header {
         height: auto;
         min-height: unset;
-        padding: 8px 10px 6px;
+        padding: calc(8px + env(safe-area-inset-top)) 10px 6px;
         flex-direction: column;
         align-items: stretch;
         gap: 6px;
@@ -110,6 +126,11 @@
       #header-left {
         width: 100%;
         gap: 0;
+      }
+      #header-right {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
       }
       /* tabs 撐滿整行，每個 tab 均分 */
       #airline-tabs {
@@ -153,7 +174,16 @@
         max-width: 180px;
       }
       /* search 跟著 header 高度下移 */
-      #search-wrap { top: 110px; width: calc(100vw - 24px); max-width: 360px; }
+      #search-wrap { top: var(--search-top, 110px); width: calc(100vw - 24px); max-width: 360px; }
+      #zoom-ctrl {
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+      }
+      #source-note {
+        right: 12px;
+        bottom: calc(72px + env(safe-area-inset-bottom));
+        font-size: 8px;
+      }
       .leaflet-tooltip { font-size: 11px !important; }
     }
 
@@ -161,13 +191,17 @@
     #header {
       position: absolute; top: 0; left: 0; right: 0; z-index: 20;
       min-height: 68px; display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 24px;
+      padding: calc(10px + env(safe-area-inset-top)) 24px 10px;
       background: rgba(255,255,255,0.82);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       border-bottom: 0.5px solid rgba(0,0,0,0.1);
     }
     #header-left { display: flex; flex-direction: row; align-items: center; gap: 10px; flex-wrap: wrap; }
+    #header-right {
+      display: flex; align-items: center; justify-content: flex-end;
+      margin-left: auto; gap: 10px; flex-wrap: wrap;
+    }
     #page-links {
       display: flex; gap: 6px; flex-wrap: wrap;
       background: rgba(0,0,0,0.04);
@@ -208,7 +242,7 @@
 
     /* Search */
     #search-wrap {
-      position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+      position: absolute; top: var(--search-top, 80px); left: 50%; transform: translateX(-50%);
       z-index: 20; width: 280px;
     }
     #search-inner { position: relative; }
@@ -243,7 +277,7 @@
 
     /* Zoom */
     #zoom-ctrl {
-      position: absolute; bottom: 32px; right: 24px; z-index: 20;
+      position: absolute; bottom: calc(32px + env(safe-area-inset-bottom)); right: 24px; z-index: 20;
       display: flex; flex-direction: column;
       border-radius: 10px; overflow: hidden;
       border: 0.5px solid rgba(0,0,0,0.12);
@@ -261,30 +295,51 @@
     .zoom-btn:hover { background: rgba(0,0,0,0.05); }
     .zoom-btn.zoom-out { border-top: 0.5px solid rgba(0,0,0,0.1); }
     #source-note {
-      position: absolute; right: 24px; bottom: 16px; z-index: 20;
+      position: absolute; right: 24px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 20;
       font-size: 9px; line-height: 1.35; color: rgba(29,29,31,0.68);
       text-align: right; pointer-events: none; user-select: none;
       text-shadow: 0 1px 2px rgba(255,255,255,0.55);
     }
     /* Feedback widget */
     .fb-fab {
-      position: absolute; right: 24px; bottom: 24px;
-      width: 40px; height: 40px; border-radius: 12px;
-      background: rgba(255,255,255,0.88);
+      position: static;
+      width: auto; min-width: 0;
+      height: 34px;
+      padding: 0 12px;
+      border-radius: 10px;
+      background: rgba(29,29,31,0.92);
+      color: #fff;
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 0.5px solid rgba(0,0,0,0.1);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      border: 0.5px solid rgba(0,0,0,0.12);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
       cursor: pointer; z-index: 30;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.01em;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .fb-fab:hover {
-      background: rgba(255,255,255,0.96);
+      background: rgba(29,29,31,0.96);
       box-shadow: 0 4px 18px rgba(0,0,0,0.14);
       transform: translateY(-1px);
     }
-    .fb-fab svg { display: block; }
+    .fb-fab svg { display: block; flex-shrink: 0; }
+    .fb-fab-label { display: inline-block; }
+    @media (pointer: coarse) {
+      .fb-fab {
+        height: 32px;
+        padding: 0 10px;
+        font-size: 11px;
+      }
+      .fb-fab-label {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
     .fb-overlay {
       position: fixed; inset: 0;
       background: rgba(29,29,31,0.35);
@@ -386,6 +441,17 @@
       </div>
 
     </div>
+    <div id="header-right">
+      <button class="fb-fab" id="fb-fab" title="問題回報 / 建議" aria-label="問題回報 / 建議" onclick="fbOpen()">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M8 1.5C4.41 1.5 1.5 4.08 1.5 7.25c0 1.52.65 2.9 1.7 3.9L2.5 14l2.97-1.1C6.35 13.28 7.16 13.5 8 13.5c3.59 0 6.5-2.58 6.5-5.75S11.59 1.5 8 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+          <circle cx="5.5" cy="7.5" r="0.7" fill="currentColor"/>
+          <circle cx="8" cy="7.5" r="0.7" fill="currentColor"/>
+          <circle cx="10.5" cy="7.5" r="0.7" fill="currentColor"/>
+        </svg>
+        <span class="fb-fab-label">問題回報 / 建議</span>
+      </button>
+    </div>
   </div>
 
   <!-- Search -->
@@ -418,14 +484,6 @@
     <div>參考文獻來自維基百科</div>
     <div>Reference sources from Wikipedia</div>
   </div>
-  <button class="fb-fab" id="fb-fab" title="問題回報 / 建議" onclick="fbOpen()">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M8 1.5C4.41 1.5 1.5 4.08 1.5 7.25c0 1.52.65 2.9 1.7 3.9L2.5 14l2.97-1.1C6.35 13.28 7.16 13.5 8 13.5c3.59 0 6.5-2.58 6.5-5.75S11.59 1.5 8 1.5Z" stroke="#1d1d1f" stroke-width="1.2" stroke-linejoin="round"/>
-      <circle cx="5.5" cy="7.5" r="0.7" fill="#1d1d1f"/>
-      <circle cx="8" cy="7.5" r="0.7" fill="#1d1d1f"/>
-      <circle cx="10.5" cy="7.5" r="0.7" fill="#1d1d1f"/>
-    </svg>
-  </button>
   <div class="fb-overlay" id="fb-overlay" aria-hidden="true">
       <div class="fb-box" role="dialog" aria-modal="true">
         <h3>問題回報 / 建議</h3>
@@ -453,6 +511,28 @@
 </div>
 
 <script>
+let map = null;
+
+function syncLayoutVars() {
+  const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  document.documentElement.style.setProperty("--app-height", `${Math.round(viewportHeight)}px`);
+  const header = document.getElementById("header");
+  if (header) {
+    const searchTop = Math.ceil(header.getBoundingClientRect().height + 12);
+    document.documentElement.style.setProperty("--search-top", `${searchTop}px`);
+  }
+  if (map) {
+    window.requestAnimationFrame(() => map.invalidateSize());
+  }
+}
+syncLayoutVars();
+window.addEventListener("resize", syncLayoutVars);
+window.addEventListener("orientationchange", syncLayoutVars);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", syncLayoutVars);
+  window.visualViewport.addEventListener("scroll", syncLayoutVars);
+}
+
 // ── UTILS ─────────────────────────────────────────────────────────────────────
 function haversine(a, b) {
   const R = 6371, r = Math.PI / 180;
@@ -620,7 +700,7 @@ const AIRLINES = {
 };
 
 // ── MAP INIT ──────────────────────────────────────────────────────────────────
-let map, activeAirline = initialAirline, activeLine = null;
+let activeAirline = initialAirline, activeLine = null;
 let mapWasDragged = false;
 const layers = { JX: {}, BR: {}, CI: {}, MU: {} };
 const hubMarkers = {};
@@ -682,6 +762,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if (!AIRLINES[activeAirline]) activeAirline = "JX";
   showAirline(activeAirline);
   updateUI();
+  syncLayoutVars();
 });
 
 function showAirline(id) {
@@ -742,6 +823,11 @@ function showAirline(id) {
 }
 
 function switchAirline(id) {
+  // 新增：追蹤切換航空公司標籤事件
+  gtag('event', 'switch_airline', {
+    'airline_id': id
+  });
+
   if (id === activeAirline) return;
   activeAirline = id;
   document.getElementById("search-input").value = "";
@@ -777,6 +863,7 @@ function updateUI() {
   const fbSend = document.getElementById('fb-send');
   if (fbFab) {
     fbFab.style.background = meta.color || '#2d6bc4';
+    fbFab.style.color = '#fff';
     fbFab.title = `回報 · ${meta.fullName || ''}`;
   }
   if (fbSend) {
@@ -788,6 +875,13 @@ function updateUI() {
 }
 
 function showCard(d, id) {
+  // 新增：追蹤點擊地圖標記（機場點閱率）
+  gtag('event', 'click_airport_marker', {
+    'airport_iata': d.iata,
+    'airport_city': d.city,
+    'current_airline': id
+  });
+
   renderInfoCard(d, id);
   openRoutePopup(d, id, false);
 }
