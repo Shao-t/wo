@@ -627,7 +627,8 @@ window.addEventListener("DOMContentLoaded", () => {
     closeRoutePopup();
   });
   map.on("dragstart", () => { mapWasDragged = true; });
-  map.on("click",     () => { mapWasDragged = false; });
+  map.on("dragend", () => { mapWasDragged = false; });
+  map.on("click", () => { mapWasDragged = false; });
 
   // Build markers for all airlines
   ["JX","BR","CI","MU"].forEach(id => {
@@ -640,8 +641,14 @@ window.addEventListener("DOMContentLoaded", () => {
       });
       visibleMarker.bindTooltip(d.iata, { permanent: true, direction: "right", offset: [5, 0] });
       const hitMarker = L.circleMarker(viewCoord, {
-        radius: hitRadius, color: meta.color, fillColor: meta.color, fillOpacity: 0.001, opacity: 0, weight: 0,
-        interactive: true, bubblingMouseEvents: false
+        radius: hitRadius,
+        stroke: false,
+        fill: true,
+        fillColor: meta.color,
+        fillOpacity: 0.01,
+        opacity: 0,
+        interactive: true,
+        bubblingMouseEvents: false
       });
       layers[id][d.iata] = { marker: visibleMarker, hit: hitMarker };
     });
@@ -685,11 +692,29 @@ function showAirline(id) {
     if (!map.hasLayer(route.marker)) route.marker.addTo(map);
     if (!map.hasLayer(route.hit)) route.hit.addTo(map);
 
-    route.hit.off("mouseover").off("mouseout").off("click").off("touchstart").off("touchend");
+    route.hit.off("mouseover").off("mouseout").off("click").off("touchstart").off("touchend").off("pointerdown").off("pointerup").off("tap");
     route.hit.on("click", (e) => {
       if (mapWasDragged) { mapWasDragged = false; return; }
-      if (e.originalEvent) L.DomEvent.stop(e.originalEvent);
+      if (e.originalEvent) {
+        L.DomEvent.stop(e.originalEvent);
+        L.DomEvent.preventDefault(e.originalEvent);
+      }
+      L.DomEvent.stopPropagation(e);
       showCard(d, id);
+    });
+    route.hit.on("touchstart", (e) => {
+      if (e.originalEvent) {
+        L.DomEvent.stop(e.originalEvent);
+        L.DomEvent.preventDefault(e.originalEvent);
+      }
+      L.DomEvent.stopPropagation(e);
+    });
+    route.hit.on("pointerdown", (e) => {
+      if (e.originalEvent) {
+        L.DomEvent.stop(e.originalEvent);
+        L.DomEvent.preventDefault(e.originalEvent);
+      }
+      L.DomEvent.stopPropagation(e);
     });
   });
 
