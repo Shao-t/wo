@@ -124,6 +124,9 @@
         padding: 5px 4px;
         gap: 4px;
         min-width: 0;
+        border: none; background: transparent;
+        -webkit-appearance: none; appearance: none;
+        -webkit-tap-highlight-color: transparent;
       }
       .tab-label {
         font-size: 10px;
@@ -190,6 +193,9 @@
       padding: 5px 16px; border-radius: 8px; cursor: pointer;
       display: flex; align-items: center; gap: 6px;
       transition: all 0.2s; user-select: none;
+      border: none; background: transparent; font-family: inherit;
+      -webkit-appearance: none; appearance: none;
+      -webkit-tap-highlight-color: transparent;
     }
     .tab-dot { width: 7px; height: 7px; border-radius: 50%; transition: background 0.2s; }
     .tab-label { font-size: 12px; letter-spacing: 0.06em; transition: all 0.2s; }
@@ -355,22 +361,22 @@
   <div id="header">
     <div id="header-left">
       <div id="airline-tabs">
-        <div class="tab-btn" id="tab-JX" onclick="switchAirline('JX')">
+        <button class="tab-btn" id="tab-JX" onclick="switchAirline('JX')">
           <div class="tab-dot" id="dot-JX"></div>
           <span class="tab-label" id="label-JX" data-short="STARLUX">STARLUX</span>
-        </div>
-        <div class="tab-btn" id="tab-BR" onclick="switchAirline('BR')">
+        </button>
+        <button class="tab-btn" id="tab-BR" onclick="switchAirline('BR')">
           <div class="tab-dot" id="dot-BR"></div>
           <span class="tab-label" id="label-BR" data-short="EVA AIR">EVA AIR</span>
-        </div>
-        <div class="tab-btn" id="tab-CI" onclick="switchAirline('CI')">
+        </button>
+        <button class="tab-btn" id="tab-CI" onclick="switchAirline('CI')">
           <div class="tab-dot" id="dot-CI"></div>
           <span class="tab-label" id="label-CI" data-short="CHINA AIR">CHINA AIR</span>
-        </div>
-        <div class="tab-btn" id="tab-MU" onclick="switchAirline('MU')">
+        </button>
+        <button class="tab-btn" id="tab-MU" onclick="switchAirline('MU')">
           <div class="tab-dot" id="dot-MU"></div>
           <span class="tab-label" id="label-MU" data-short="CHINA EAST">CHINA EAST</span>
-        </div>
+        </button>
       </div>
     </div>
     <div id="stats">
@@ -620,6 +626,13 @@ const layers = { JX: {}, BR: {}, CI: {}, MU: {} };
 const hubMarkers = {};
 
 window.addEventListener("DOMContentLoaded", () => {
+  // Star rating listeners (moved here to guarantee DOM is ready and isolate from map init)
+  document.querySelectorAll('.fb-star').forEach(s => {
+    s.addEventListener('mouseenter', () => { fbHighlight(+s.dataset.val); document.getElementById('fb-star-hint').textContent = FB_STAR_LABELS[+s.dataset.val]; });
+    s.addEventListener('mouseleave', () => { fbHighlight(fbRating); document.getElementById('fb-star-hint').textContent = fbRating ? FB_STAR_LABELS[fbRating] : ''; });
+    s.addEventListener('click',      () => { fbRating = fbRating === +s.dataset.val ? 0 : +s.dataset.val; fbHighlight(fbRating); document.getElementById('fb-star-hint').textContent = fbRating ? FB_STAR_LABELS[fbRating] : ''; });
+  });
+
   map = L.map("map", { worldCopyJump: false, minZoom: 2, zoomControl: false }).setView([25, 115], 3);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { opacity: 0.9 }).addTo(map);
   map.on("click", () => {
@@ -693,28 +706,25 @@ function showAirline(id) {
     if (!map.hasLayer(route.hit)) route.hit.addTo(map);
 
     route.hit.off("mouseover").off("mouseout").off("click").off("touchstart").off("touchend").off("pointerdown").off("pointerup").off("tap");
+    // Desktop: click handler
     route.hit.on("click", (e) => {
       if (mapWasDragged) { mapWasDragged = false; return; }
-      if (e.originalEvent) {
-        L.DomEvent.stop(e.originalEvent);
-        L.DomEvent.preventDefault(e.originalEvent);
-      }
       L.DomEvent.stopPropagation(e);
       showCard(d, id);
     });
+    // iOS/touch: use touchend to avoid preventDefault blocking synthetic click.
+    // Only stopPropagation here — never preventDefault on touchstart/touchend,
+    // because that kills the browser's synthesised click on iOS Safari.
+    let touchMoved = false;
     route.hit.on("touchstart", (e) => {
-      if (e.originalEvent) {
-        L.DomEvent.stop(e.originalEvent);
-        L.DomEvent.preventDefault(e.originalEvent);
-      }
+      touchMoved = false;
       L.DomEvent.stopPropagation(e);
     });
-    route.hit.on("pointerdown", (e) => {
-      if (e.originalEvent) {
-        L.DomEvent.stop(e.originalEvent);
-        L.DomEvent.preventDefault(e.originalEvent);
-      }
+    route.hit.on("touchmove", () => { touchMoved = true; });
+    route.hit.on("touchend", (e) => {
+      if (touchMoved || mapWasDragged) { mapWasDragged = false; return; }
       L.DomEvent.stopPropagation(e);
+      showCard(d, id);
     });
   });
 
@@ -841,12 +851,9 @@ function fbOpen(){ document.getElementById('fb-overlay').classList.add('show'); 
 function fbClose(){ document.getElementById('fb-overlay').classList.remove('show'); }
 const FB_STAR_LABELS = ['','非常差','差','普通','好','非常好'];
 let fbRating = 0;
-document.querySelectorAll('.fb-star').forEach(s => {
-  s.addEventListener('mouseenter', () => { fbHighlight(+s.dataset.val); document.getElementById('fb-star-hint').textContent = FB_STAR_LABELS[+s.dataset.val]; });
-  s.addEventListener('mouseleave', () => { fbHighlight(fbRating); document.getElementById('fb-star-hint').textContent = fbRating ? FB_STAR_LABELS[fbRating] : ''; });
-  s.addEventListener('click',      () => { fbRating = fbRating === +s.dataset.val ? 0 : +s.dataset.val; fbHighlight(fbRating); document.getElementById('fb-star-hint').textContent = fbRating ? FB_STAR_LABELS[fbRating] : ''; });
-});
 function fbHighlight(val){ document.querySelectorAll('.fb-star').forEach(s => s.classList.toggle('active', +s.dataset.val <= val)); }
+// fb-star listeners moved inside DOMContentLoaded (see below) to ensure DOM is ready
+// and to prevent any exception here from blocking the map initialisation.
 async function fbSubmit(){
   const type=document.getElementById('fb-type').value;
   const desc=document.getElementById('fb-desc').value.trim();
