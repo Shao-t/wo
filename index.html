@@ -132,30 +132,51 @@
         display: flex;
         justify-content: flex-end;
       }
-      /* tabs 撐滿整行，每個 tab 均分 */
-      #airline-tabs {
-        width: 100%;
-        display: flex;
-        gap: 2px;
-        padding: 3px;
-      }
-      .tab-btn {
-        flex: 1;
-        justify-content: center;
-        padding: 5px 4px;
-        gap: 4px;
-        min-width: 0;
-        border: none; background: transparent;
+      /* 手機版：隱藏橫排 tabs，改用「膠囊按鈕 + 展開清單」，家數再多也不會擠壓版面 */
+      #airline-tabs { display: none; }
+      #airline-tabs-mobile { display: block; }
+      #mobile-tab-current {
+        display: flex; align-items: center; gap: 6px;
+        padding: 7px 12px; border-radius: 20px;
+        background: rgba(0,0,0,0.06);
+        border: none; font-family: inherit;
         -webkit-appearance: none; appearance: none;
         -webkit-tap-highlight-color: transparent;
+        cursor: pointer; max-width: 62vw;
       }
-      .tab-label {
-        font-size: 10px;
-        letter-spacing: 0.02em;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      #mobile-current-label {
+        font-size: 12px; font-weight: 600; color: #1d1d1f;
+        letter-spacing: 0.02em; white-space: nowrap;
+        overflow: hidden; text-overflow: ellipsis;
       }
+      #mobile-chevron { color: #86868b; flex-shrink: 0; transition: transform 0.2s; }
+      #airline-tabs-mobile.open #mobile-chevron { transform: rotate(180deg); }
+      #mobile-tab-panel {
+        display: none;
+        position: absolute; top: calc(100% + 8px); left: 0;
+        background: rgba(255,255,255,0.97);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-radius: 14px; padding: 6px;
+        box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+        border: 0.5px solid rgba(0,0,0,0.08);
+        grid-template-columns: repeat(2, minmax(128px, 1fr));
+        gap: 2px;
+        width: max-content; max-width: calc(100vw - 24px);
+        z-index: 30;
+      }
+      #airline-tabs-mobile.open #mobile-tab-panel { display: grid; }
+      .mobile-tab-item {
+        display: flex; align-items: center; gap: 8px;
+        padding: 9px 10px; border-radius: 9px;
+        border: none; background: transparent; font-family: inherit;
+        -webkit-appearance: none; appearance: none;
+        -webkit-tap-highlight-color: transparent;
+        cursor: pointer; text-align: left;
+      }
+      .mobile-tab-item.active { background: rgba(0,0,0,0.06); }
+      .mobile-tab-item .tab-dot { flex-shrink: 0; }
+      .mobile-tab-item-label { font-size: 12px; color: #1d1d1f; white-space: nowrap; }
       /* stats 獨佔第二行，靠左排列 */
       #stats {
         width: 100%;
@@ -223,6 +244,8 @@
       background: rgba(0,0,0,0.06);
       border-radius: 10px; padding: 3px;
     }
+    /* 手機版膠囊＋展開清單，桌面版預設隱藏 */
+    #airline-tabs-mobile { display: none; position: relative; }
     .tab-btn {
       padding: 5px 16px; border-radius: 8px; cursor: pointer;
       display: flex; align-items: center; gap: 6px;
@@ -444,6 +467,17 @@
           <div class="tab-dot" id="dot-IT"></div>
           <span class="tab-label" id="label-IT" data-short="TIGERAIR">TIGERAIR</span>
         </button>
+      </div>
+      <!-- 手機版：目前選中的膠囊按鈕，點一下展開完整清單（格狀排列，不受寬度限制） -->
+      <div id="airline-tabs-mobile">
+        <button id="mobile-tab-current" onclick="toggleAirlineMenu()">
+          <div class="tab-dot" id="mobile-current-dot"></div>
+          <span id="mobile-current-label">STARLUX</span>
+          <svg id="mobile-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div id="mobile-tab-panel"></div>
       </div>
     </div>
     <div id="stats">
@@ -726,6 +760,31 @@ const AIRLINE_IDS = ["JX","BR","CI","MU","GK","EY","IT"];
 const AIRLINE_META_INFO = window.AIRLINE_META || {};
 const AIRLINES = Object.fromEntries(AIRLINE_IDS.map(id => [id, AIRLINE_DATA[id] || []]));
 
+// ── 手機版展開清單：內容由 AIRLINE_IDS 動態產生，新增航空公司不用另外改 markup ──
+(function buildMobileTabPanel() {
+  const panel = document.getElementById("mobile-tab-panel");
+  if (!panel) return;
+  panel.innerHTML = AIRLINE_IDS.map(id => {
+    const meta = AIRLINE_META_INFO[id] || {};
+    return `<button class="mobile-tab-item" id="mobile-item-${id}" onclick="switchAirline('${id}')">
+      <div class="tab-dot" id="mobile-dot-${id}"></div>
+      <span class="mobile-tab-item-label">${meta.fullName || id}</span>
+    </button>`;
+  }).join("");
+})();
+function toggleAirlineMenu() {
+  document.getElementById("airline-tabs-mobile").classList.toggle("open");
+}
+function closeAirlineMenu() {
+  document.getElementById("airline-tabs-mobile").classList.remove("open");
+}
+document.addEventListener("click", (e) => {
+  const wrap = document.getElementById("airline-tabs-mobile");
+  if (wrap && wrap.classList.contains("open") && !wrap.contains(e.target)) {
+    wrap.classList.remove("open");
+  }
+});
+
 // ── MAP INIT ──────────────────────────────────────────────────────────────────
 let activeAirline = initialAirline, activeLine = null;
 let mapWasDragged = false;
@@ -745,6 +804,7 @@ window.addEventListener("DOMContentLoaded", () => {
   map.on("click", () => {
     hideInfoCard();
     closeRoutePopup();
+    closeAirlineMenu();
   });
   map.on("dragstart", () => { mapWasDragged = true; });
   map.on("dragend", () => { mapWasDragged = false; });
@@ -867,6 +927,7 @@ function switchAirline(id) {
     'airline_id': id
   });
 
+  closeAirlineMenu();
   if (id === activeAirline) return;
   activeAirline = id;
   document.getElementById("search-input").value = "";
@@ -888,7 +949,19 @@ function updateUI() {
     document.getElementById(`dot-${id}`).style.background = active ? a.color : "#bbb";
     document.getElementById(`label-${id}`).style.color = active ? "#1d1d1f" : "#86868b";
     document.getElementById(`label-${id}`).style.fontWeight = active ? "600" : "400";
+
+    // 手機版展開清單裡的對應項目
+    const mobileItem = document.getElementById(`mobile-item-${id}`);
+    if (mobileItem) mobileItem.classList.toggle("active", active);
+    const mobileDot = document.getElementById(`mobile-dot-${id}`);
+    if (mobileDot) mobileDot.style.background = active ? a.color : "#bbb";
   });
+
+  // 手機版：目前選中的膠囊按鈕
+  const mobileCurLabel = document.getElementById("mobile-current-label");
+  const mobileCurDot = document.getElementById("mobile-current-dot");
+  if (mobileCurLabel) mobileCurLabel.textContent = meta.fullName || activeAirline;
+  if (mobileCurDot) mobileCurDot.style.background = meta.color || "#bbb";
 
   // Stats — 已停飛（SUSPENDED）航線不計入目的地數量，避免誤導
   const activeDestCount = al.filter(d => d.status !== "SUSPENDED").length;
