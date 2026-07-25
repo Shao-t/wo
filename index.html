@@ -17,6 +17,8 @@
   <script src="airline-data.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* 手機版膠囊選單容器：預設隱藏，放在最前面確保 source order 不會被之後的桌面規則蓋掉 */
+    #airline-tabs-mobile { display: none; position: relative; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
       background: #f5f5f7;
@@ -151,32 +153,41 @@
       }
       #mobile-chevron { color: #86868b; flex-shrink: 0; transition: transform 0.2s; }
       #airline-tabs-mobile.open #mobile-chevron { transform: rotate(180deg); }
+      /* 下拉選單卡片：單欄清單，比照 iOS 選單樣式 */
       #mobile-tab-panel {
         display: none;
         position: absolute; top: calc(100% + 8px); left: 0;
-        background: rgba(255,255,255,0.97);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-radius: 14px; padding: 6px;
-        box-shadow: 0 8px 28px rgba(0,0,0,0.18);
-        border: 0.5px solid rgba(0,0,0,0.08);
-        grid-template-columns: repeat(2, minmax(128px, 1fr));
-        gap: 2px;
-        width: max-content; max-width: calc(100vw - 24px);
+        background: #fff;
+        border-radius: 16px;
+        padding: 4px 0;
+        box-shadow: 0 12px 32px rgba(0,0,0,0.16), 0 2px 6px rgba(0,0,0,0.06);
+        border: 0.5px solid rgba(0,0,0,0.06);
+        width: 236px; max-width: calc(100vw - 24px);
         z-index: 30;
+        overflow: hidden;
       }
-      #airline-tabs-mobile.open #mobile-tab-panel { display: grid; }
+      #airline-tabs-mobile.open #mobile-tab-panel { display: block; }
       .mobile-tab-item {
-        display: flex; align-items: center; gap: 8px;
-        padding: 9px 10px; border-radius: 9px;
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 10px; width: 100%;
+        padding: 12px 16px; border-radius: 0;
         border: none; background: transparent; font-family: inherit;
         -webkit-appearance: none; appearance: none;
         -webkit-tap-highlight-color: transparent;
         cursor: pointer; text-align: left;
+        border-bottom: 0.5px solid rgba(0,0,0,0.08);
       }
-      .mobile-tab-item.active { background: rgba(0,0,0,0.06); }
+      .mobile-tab-item:last-child { border-bottom: none; }
+      .mobile-tab-item:active { background: rgba(0,0,0,0.04); }
+      .mobile-tab-item-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
       .mobile-tab-item .tab-dot { flex-shrink: 0; }
-      .mobile-tab-item-label { font-size: 12px; color: #1d1d1f; white-space: nowrap; }
+      .mobile-tab-item-label {
+        font-size: 15px; color: #1d1d1f; font-weight: 500;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .mobile-tab-item.active .mobile-tab-item-label { font-weight: 600; }
+      .mobile-tab-check { color: #0a84ff; flex-shrink: 0; opacity: 0; }
+      .mobile-tab-item.active .mobile-tab-check { opacity: 1; }
       /* stats 獨佔第二行，靠左排列 */
       #stats {
         width: 100%;
@@ -244,8 +255,7 @@
       background: rgba(0,0,0,0.06);
       border-radius: 10px; padding: 3px;
     }
-    /* 手機版膠囊＋展開清單，桌面版預設隱藏 */
-    #airline-tabs-mobile { display: none; position: relative; }
+    /* 手機版膠囊＋展開清單在 @media (pointer: coarse) 內開啟，桌面預設隱藏（見檔案開頭） */
     .tab-btn {
       padding: 5px 16px; border-radius: 8px; cursor: pointer;
       display: flex; align-items: center; gap: 6px;
@@ -767,8 +777,13 @@ const AIRLINES = Object.fromEntries(AIRLINE_IDS.map(id => [id, AIRLINE_DATA[id] 
   panel.innerHTML = AIRLINE_IDS.map(id => {
     const meta = AIRLINE_META_INFO[id] || {};
     return `<button class="mobile-tab-item" id="mobile-item-${id}" onclick="switchAirline('${id}')">
-      <div class="tab-dot" id="mobile-dot-${id}"></div>
-      <span class="mobile-tab-item-label">${meta.fullName || id}</span>
+      <span class="mobile-tab-item-left">
+        <div class="tab-dot" id="mobile-dot-${id}"></div>
+        <span class="mobile-tab-item-label">${meta.fullName || id}</span>
+      </span>
+      <svg class="mobile-tab-check" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </button>`;
   }).join("");
 })();
