@@ -432,6 +432,18 @@
           <div class="tab-dot" id="dot-MU"></div>
           <span class="tab-label" id="label-MU" data-short="CHINA EAST">CHINA EAST</span>
         </button>
+        <button class="tab-btn" id="tab-GK" onclick="switchAirline('GK')">
+          <div class="tab-dot" id="dot-GK"></div>
+          <span class="tab-label" id="label-GK" data-short="JETSTAR JP">JETSTAR JP</span>
+        </button>
+        <button class="tab-btn" id="tab-EY" onclick="switchAirline('EY')">
+          <div class="tab-dot" id="dot-EY"></div>
+          <span class="tab-label" id="label-EY" data-short="ETIHAD">ETIHAD</span>
+        </button>
+        <button class="tab-btn" id="tab-IT" onclick="switchAirline('IT')">
+          <div class="tab-dot" id="dot-IT"></div>
+          <span class="tab-label" id="label-IT" data-short="TIGERAIR">TIGERAIR</span>
+        </button>
       </div>
     </div>
     <div id="stats">
@@ -559,6 +571,11 @@ function mapCoord(c, iata) {
   if (c[1] < 0 && !LEFT_SIDE_AIRPORTS.has(iata)) return [c[0], c[1] + 360];
   return c;
 }
+// 同一航空公司可能有多個出發機場飛往同一目的地（例如 GK 從 NRT/KIX/NGO/FUK 都有航班飛同城市），
+// 純用 iata 當 key 會互相覆蓋，因此統一用 iata+origin 組成複合鍵。
+function routeKey(d) {
+  return `${d.iata}__${d.origin || ""}`;
+}
 const isTouchDevice = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
 const markerRadius = isTouchDevice ? 7 : 4;
 const hitRadius = isTouchDevice ? 20 : 10;
@@ -601,6 +618,8 @@ function routeRows(d, id) {
   ];
 
   if (d.origin && d.origin !== (meta.hub || "TPE")) rows.push(["出發樞紐", HUB_LABELS[d.origin] || d.origin]);
+  if (d.status === "SUSPENDED") rows.unshift(["狀態", "⚠️ 目前停飛"]);
+  else if (d.status === "SEASONAL") rows.unshift(["狀態", "季節限定航班"]);
   return rows;
 }
 function routePopupHtml(d, id) {
@@ -685,24 +704,32 @@ const HUB_COORDS = {
   TPE: [25.0797, 121.2342],
   TSA: [25.0694, 121.5515],
   PVG: [31.1443, 121.8083],
+  NRT: [35.7720, 140.3929],
+  AUH: [24.4330, 54.6511],
+  KIX: [34.4347, 135.2440],
+  NGO: [34.8584, 136.8054],
+  FUK: [33.5859, 130.4507],
 };
 const HUB_LABELS = {
   TPE: "TPE 桃園",
   TSA: "TSA 松山",
   PVG: "PVG 浦東",
+  NRT: "NRT 成田",
+  AUH: "AUH 阿布達比",
+  KIX: "KIX 大阪關西",
+  NGO: "NGO 名古屋",
+  FUK: "FUK 福岡",
+  BOTH: "松山／桃園雙樞紐",
 };
+// 所有航空公司代碼統一在此維護，新增/移除航空公司只需改這裡
+const AIRLINE_IDS = ["JX","BR","CI","MU","GK","EY","IT"];
 const AIRLINE_META_INFO = window.AIRLINE_META || {};
-const AIRLINES = {
-  JX: AIRLINE_DATA.JX || [],
-  BR: AIRLINE_DATA.BR || [],
-  CI: AIRLINE_DATA.CI || [],
-  MU: AIRLINE_DATA.MU || [],
-};
+const AIRLINES = Object.fromEntries(AIRLINE_IDS.map(id => [id, AIRLINE_DATA[id] || []]));
 
 // ── MAP INIT ──────────────────────────────────────────────────────────────────
 let activeAirline = initialAirline, activeLine = null;
 let mapWasDragged = false;
-const layers = { JX: {}, BR: {}, CI: {}, MU: {} };
+const layers = Object.fromEntries(AIRLINE_IDS.map(id => [id, {}]));
 const hubMarkers = {};
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -724,13 +751,17 @@ window.addEventListener("DOMContentLoaded", () => {
   map.on("click", () => { mapWasDragged = false; });
 
   // Build markers for all airlines
-  ["JX","BR","CI","MU"].forEach(id => {
+  AIRLINE_IDS.forEach(id => {
     const al = AIRLINES[id];
     const meta = AIRLINE_META_INFO[id] || {};
     al.forEach(d => {
       const viewCoord = mapCoord(d.coords, d.iata);
+      const suspended = d.status === "SUSPENDED";
       const visibleMarker = L.circleMarker(viewCoord, {
-        radius: markerRadius, color: meta.color, fillColor: meta.color, fillOpacity: 0.4, weight: 1.5
+        radius: markerRadius, color: meta.color, fillColor: meta.color,
+        fillOpacity: suspended ? 0.15 : 0.4, weight: 1.5,
+        opacity: suspended ? 0.4 : 1,
+        dashArray: suspended ? "2,3" : null
       });
       visibleMarker.bindTooltip(d.iata, { permanent: true, direction: "right", offset: [5, 0] });
       const hitMarker = L.circleMarker(viewCoord, {
@@ -743,7 +774,9 @@ window.addEventListener("DOMContentLoaded", () => {
         interactive: true,
         bubblingMouseEvents: false
       });
-      layers[id][d.iata] = { marker: visibleMarker, hit: hitMarker };
+      // 同一目的地可能有多個出發機場（例如 GK 從 NRT/KIX/NGO/FUK 都飛同一城市），
+      // 若只用 iata 當 key 會互相覆蓋，因此改用 iata+origin 複合鍵。
+      layers[id][routeKey(d)] = { marker: visibleMarker, hit: hitMarker };
     });
   });
 
@@ -758,6 +791,12 @@ window.addEventListener("DOMContentLoaded", () => {
     .bindTooltip("TPE 桃園", { permanent:true, direction:"right", offset:[9,0] });
   hubMarkers["MU_PVG"] = L.circleMarker(HUB_COORDS.PVG, { radius:8, color:"#d10000", fillColor:"#d10000", fillOpacity:1, weight:2 })
     .bindTooltip("PVG 浦東", { permanent:true, direction:"right", offset:[9,0] });
+  hubMarkers["GK_NRT"] = L.circleMarker(HUB_COORDS.NRT, { radius:8, color:"#FF6600", fillColor:"#FF6600", fillOpacity:1, weight:2 })
+    .bindTooltip("NRT 成田", { permanent:true, direction:"right", offset:[9,0] });
+  hubMarkers["EY_AUH"] = L.circleMarker(HUB_COORDS.AUH, { radius:8, color:"#BD8B13", fillColor:"#BD8B13", fillOpacity:1, weight:2 })
+    .bindTooltip("AUH 阿布達比", { permanent:true, direction:"right", offset:[9,0] });
+  hubMarkers["IT_TPE"] = L.circleMarker(HUB_COORDS.TPE, { radius:8, color:"#F6A800", fillColor:"#F6A800", fillOpacity:1, weight:2 })
+    .bindTooltip("TPE 桃園", { permanent:true, direction:"right", offset:[9,0] });
 
   if (!AIRLINES[activeAirline]) activeAirline = "JX";
   showAirline(activeAirline);
@@ -767,7 +806,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 function showAirline(id) {
   const al = AIRLINES[id];
-  const otherIDs = ["JX","BR","CI","MU"].filter(x => x !== id);
+  const otherIDs = AIRLINE_IDS.filter(x => x !== id);
 
   // Hide others
   otherIDs.forEach(otherID => {
@@ -782,7 +821,8 @@ function showAirline(id) {
 
   // Show this
   al.forEach(d => {
-    const route = layers[id][d.iata];
+    const route = layers[id][routeKey(d)];
+    if (!route) return; // 資料缺漏時安全跳過，避免整個畫面壞掉
     if (!map.hasLayer(route.marker)) route.marker.addTo(map);
     if (!map.hasLayer(route.hit)) route.hit.addTo(map);
 
@@ -809,10 +849,9 @@ function showAirline(id) {
     });
   });
 
-  const tpeHub = hubMarkers[`${id}_TPE`];
-  if (tpeHub && !map.hasLayer(tpeHub)) tpeHub.addTo(map);
-  const pvgHub = hubMarkers[`${id}_PVG`];
-  if (pvgHub && !map.hasLayer(pvgHub)) pvgHub.addTo(map);
+  const meta = AIRLINE_META_INFO[id] || {};
+  const hubMarker = hubMarkers[`${id}_${meta.hub}`];
+  if (hubMarker && !map.hasLayer(hubMarker)) hubMarker.addTo(map);
   if (id === "BR") {
     const hasTsaRoutes = al.some(d => d.origin === "TSA" || d.origin === "BOTH");
     if (hasTsaRoutes && hubMarkers["BR_TSA"] && !map.hasLayer(hubMarkers["BR_TSA"])) {
@@ -841,7 +880,7 @@ function updateUI() {
   const meta = AIRLINE_META_INFO[activeAirline] || {};
 
   // Tabs
-  ["JX","BR","CI","MU"].forEach(id => {
+  AIRLINE_IDS.forEach(id => {
     const a = AIRLINE_META_INFO[id] || {};
     const active = activeAirline === id;
     document.getElementById(`tab-${id}`).style.background = active ? "#fff" : "transparent";
@@ -851,8 +890,9 @@ function updateUI() {
     document.getElementById(`label-${id}`).style.fontWeight = active ? "600" : "400";
   });
 
-  // Stats
-  document.getElementById("stat-dest").textContent = al.length;
+  // Stats — 已停飛（SUSPENDED）航線不計入目的地數量，避免誤導
+  const activeDestCount = al.filter(d => d.status !== "SUSPENDED").length;
+  document.getElementById("stat-dest").textContent = activeDestCount;
   document.getElementById("stat-dest").style.color = meta.color || "#000";
 
   // Search border color
