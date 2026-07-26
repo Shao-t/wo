@@ -17,8 +17,6 @@
   <script src="airline-data.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    /* 手機版膠囊選單容器：預設隱藏，放在最前面確保 source order 不會被之後的桌面規則蓋掉 */
-    #airline-tabs-mobile { display: none; position: relative; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
       background: #f5f5f7;
@@ -134,60 +132,50 @@
         display: flex;
         justify-content: flex-end;
       }
-      /* 手機版：隱藏橫排 tabs，改用「膠囊按鈕 + 展開清單」，家數再多也不會擠壓版面 */
+      /* 手機版改用「目前選中膠囊 + 展開式選單」，避免家數變多時 tabs 被壓爆 */
       #airline-tabs { display: none; }
-      #airline-tabs-mobile { display: block; }
-      #mobile-tab-current {
-        display: flex; align-items: center; gap: 6px;
-        padding: 7px 12px; border-radius: 20px;
-        background: rgba(0,0,0,0.06);
-        border: none; font-family: inherit;
+      #airline-picker { display: block; width: 100%; }
+      #airline-chip {
+        display: flex; align-items: center; gap: 8px;
+        width: 100%;
+        background: rgba(0,0,0,0.045);
+        border: none; border-radius: 10px;
+        padding: 9px 12px;
+        font-family: inherit; cursor: pointer;
         -webkit-appearance: none; appearance: none;
         -webkit-tap-highlight-color: transparent;
-        cursor: pointer; max-width: 62vw;
       }
-      #mobile-current-label {
-        font-size: 12px; font-weight: 600; color: #1d1d1f;
-        letter-spacing: 0.02em; white-space: nowrap;
-        overflow: hidden; text-overflow: ellipsis;
-      }
-      #mobile-chevron { color: #86868b; flex-shrink: 0; transition: transform 0.2s; }
-      #airline-tabs-mobile.open #mobile-chevron { transform: rotate(180deg); }
-      /* 下拉選單卡片：單欄清單，比照 iOS 選單樣式 */
-      #mobile-tab-panel {
+      .airline-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+      .airline-chip-label { flex: 1; text-align: left; font-size: 13px; font-weight: 600; color: #1d1d1f; letter-spacing: 0.02em; }
+      .airline-chip-chevron { color: #86868b; transition: transform 0.2s; flex-shrink: 0; }
+      #airline-chip.open .airline-chip-chevron { transform: rotate(180deg); }
+      #airline-picker-panel {
         display: none;
-        position: absolute; top: calc(100% + 8px); left: 0;
-        background: #fff;
-        border-radius: 16px;
-        padding: 4px 0;
-        box-shadow: 0 12px 32px rgba(0,0,0,0.16), 0 2px 6px rgba(0,0,0,0.06);
-        border: 0.5px solid rgba(0,0,0,0.06);
-        width: 236px; max-width: calc(100vw - 24px);
-        z-index: 30;
-        overflow: hidden;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        margin-top: 6px;
+        padding: 8px;
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 0.5px solid rgba(0,0,0,0.08);
+        border-radius: 12px;
       }
-      #airline-tabs-mobile.open #mobile-tab-panel { display: block; }
-      .mobile-tab-item {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 10px; width: 100%;
-        padding: 12px 16px; border-radius: 0;
-        border: none; background: transparent; font-family: inherit;
+      #airline-picker-panel.open { display: grid; }
+      .picker-option {
+        display: flex; align-items: center; gap: 7px;
+        padding: 8px 9px; border-radius: 8px;
+        border: 0.5px solid transparent;
+        background: transparent;
+        font-family: inherit; font-size: 11.5px; color: #1d1d1f;
+        cursor: pointer; text-align: left;
         -webkit-appearance: none; appearance: none;
         -webkit-tap-highlight-color: transparent;
-        cursor: pointer; text-align: left;
-        border-bottom: 0.5px solid rgba(0,0,0,0.08);
       }
-      .mobile-tab-item:last-child { border-bottom: none; }
-      .mobile-tab-item:active { background: rgba(0,0,0,0.04); }
-      .mobile-tab-item-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
-      .mobile-tab-item .tab-dot { flex-shrink: 0; }
-      .mobile-tab-item-label {
-        font-size: 15px; color: #1d1d1f; font-weight: 500;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      }
-      .mobile-tab-item.active .mobile-tab-item-label { font-weight: 600; }
-      .mobile-tab-check { color: #0a84ff; flex-shrink: 0; opacity: 0; }
-      .mobile-tab-item.active .mobile-tab-check { opacity: 1; }
+      .picker-option.active { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.08); font-weight: 600; }
+      .picker-option-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+      .picker-option-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .picker-option-check { color: #86868b; flex-shrink: 0; }
       /* stats 獨佔第二行，靠左排列 */
       #stats {
         width: 100%;
@@ -224,7 +212,7 @@
       position: absolute; top: 0; left: 0; right: 0; z-index: 20;
       min-height: 68px; display: flex; align-items: center; justify-content: space-between;
       padding: calc(10px + env(safe-area-inset-top)) 24px 10px;
-      background: rgba(255,255,255,0.82);
+      background: rgba(255,255,255,0.66);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       border-bottom: 0.5px solid rgba(0,0,0,0.1);
@@ -255,7 +243,7 @@
       background: rgba(0,0,0,0.06);
       border-radius: 10px; padding: 3px;
     }
-    /* 手機版膠囊＋展開清單在 @media (pointer: coarse) 內開啟，桌面預設隱藏（見檔案開頭） */
+    #airline-picker { display: none; }
     .tab-btn {
       padding: 5px 16px; border-radius: 8px; cursor: pointer;
       display: flex; align-items: center; gap: 6px;
@@ -285,7 +273,7 @@
     }
     #search-input {
       width: 100%; height: 36px;
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.72);
       backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border: 0.5px solid rgba(0,0,0,0.15);
       border-radius: 10px; padding: 0 14px 0 36px;
@@ -478,16 +466,16 @@
           <span class="tab-label" id="label-IT" data-short="TIGERAIR">TIGERAIR</span>
         </button>
       </div>
-      <!-- 手機版：目前選中的膠囊按鈕，點一下展開完整清單（格狀排列，不受寬度限制） -->
-      <div id="airline-tabs-mobile">
-        <button id="mobile-tab-current" onclick="toggleAirlineMenu()">
-          <div class="tab-dot" id="mobile-current-dot"></div>
-          <span id="mobile-current-label">STARLUX</span>
-          <svg id="mobile-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- 手機版：目前選中膠囊，點擊展開完整清單，避免航空公司變多時被壓爆 -->
+      <div id="airline-picker">
+        <button id="airline-chip" type="button" onclick="toggleAirlinePicker()" aria-haspopup="listbox" aria-expanded="false">
+          <span class="airline-chip-dot" id="airline-chip-dot"></span>
+          <span class="airline-chip-label" id="airline-chip-label"></span>
+          <svg class="airline-chip-chevron" id="airline-chip-chevron" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <div id="mobile-tab-panel"></div>
+        <div id="airline-picker-panel" role="listbox"></div>
       </div>
     </div>
     <div id="stats">
@@ -770,36 +758,6 @@ const AIRLINE_IDS = ["JX","BR","CI","MU","GK","EY","IT"];
 const AIRLINE_META_INFO = window.AIRLINE_META || {};
 const AIRLINES = Object.fromEntries(AIRLINE_IDS.map(id => [id, AIRLINE_DATA[id] || []]));
 
-// ── 手機版展開清單：內容由 AIRLINE_IDS 動態產生，新增航空公司不用另外改 markup ──
-(function buildMobileTabPanel() {
-  const panel = document.getElementById("mobile-tab-panel");
-  if (!panel) return;
-  panel.innerHTML = AIRLINE_IDS.map(id => {
-    const meta = AIRLINE_META_INFO[id] || {};
-    return `<button class="mobile-tab-item" id="mobile-item-${id}" onclick="switchAirline('${id}')">
-      <span class="mobile-tab-item-left">
-        <div class="tab-dot" id="mobile-dot-${id}"></div>
-        <span class="mobile-tab-item-label">${meta.fullName || id}</span>
-      </span>
-      <svg class="mobile-tab-check" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>`;
-  }).join("");
-})();
-function toggleAirlineMenu() {
-  document.getElementById("airline-tabs-mobile").classList.toggle("open");
-}
-function closeAirlineMenu() {
-  document.getElementById("airline-tabs-mobile").classList.remove("open");
-}
-document.addEventListener("click", (e) => {
-  const wrap = document.getElementById("airline-tabs-mobile");
-  if (wrap && wrap.classList.contains("open") && !wrap.contains(e.target)) {
-    wrap.classList.remove("open");
-  }
-});
-
 // ── MAP INIT ──────────────────────────────────────────────────────────────────
 let activeAirline = initialAirline, activeLine = null;
 let mapWasDragged = false;
@@ -819,7 +777,7 @@ window.addEventListener("DOMContentLoaded", () => {
   map.on("click", () => {
     hideInfoCard();
     closeRoutePopup();
-    closeAirlineMenu();
+    closeAirlinePicker();
   });
   map.on("dragstart", () => { mapWasDragged = true; });
   map.on("dragend", () => { mapWasDragged = false; });
@@ -942,7 +900,6 @@ function switchAirline(id) {
     'airline_id': id
   });
 
-  closeAirlineMenu();
   if (id === activeAirline) return;
   activeAirline = id;
   document.getElementById("search-input").value = "";
@@ -964,19 +921,10 @@ function updateUI() {
     document.getElementById(`dot-${id}`).style.background = active ? a.color : "#bbb";
     document.getElementById(`label-${id}`).style.color = active ? "#1d1d1f" : "#86868b";
     document.getElementById(`label-${id}`).style.fontWeight = active ? "600" : "400";
-
-    // 手機版展開清單裡的對應項目
-    const mobileItem = document.getElementById(`mobile-item-${id}`);
-    if (mobileItem) mobileItem.classList.toggle("active", active);
-    const mobileDot = document.getElementById(`mobile-dot-${id}`);
-    if (mobileDot) mobileDot.style.background = active ? a.color : "#bbb";
   });
 
-  // 手機版：目前選中的膠囊按鈕
-  const mobileCurLabel = document.getElementById("mobile-current-label");
-  const mobileCurDot = document.getElementById("mobile-current-dot");
-  if (mobileCurLabel) mobileCurLabel.textContent = meta.fullName || activeAirline;
-  if (mobileCurDot) mobileCurDot.style.background = meta.color || "#bbb";
+  // 手機版膠囊按鈕 + 展開選單
+  updateAirlinePicker();
 
   // Stats — 已停飛（SUSPENDED）航線不計入目的地數量，避免誤導
   const activeDestCount = al.filter(d => d.status !== "SUSPENDED").length;
@@ -1000,6 +948,51 @@ function updateUI() {
     fbSend.style.borderColor = meta.color || '#2d6bc4';
   }
 
+}
+
+// ── 手機版：目前選中膠囊 + 展開式選單 ──────────────────────────────────────────
+function updateAirlinePicker() {
+  const chip = document.getElementById("airline-chip");
+  const chipDot = document.getElementById("airline-chip-dot");
+  const chipLabel = document.getElementById("airline-chip-label");
+  if (!chip) return;
+  const meta = AIRLINE_META_INFO[activeAirline] || {};
+  const labelEl = document.getElementById(`label-${activeAirline}`);
+  chipDot.style.background = meta.color || "#999";
+  chipLabel.textContent = (labelEl && labelEl.dataset.short) || meta.fullName || activeAirline;
+
+  const panel = document.getElementById("airline-picker-panel");
+  panel.innerHTML = AIRLINE_IDS.map(id => {
+    const a = AIRLINE_META_INFO[id] || {};
+    const optLabelEl = document.getElementById(`label-${id}`);
+    const short = (optLabelEl && optLabelEl.dataset.short) || a.fullName || id;
+    const active = activeAirline === id;
+    return `<button type="button" class="picker-option${active ? " active" : ""}" onclick="pickAirline('${id}')" role="option" aria-selected="${active}">
+      <span class="picker-option-dot" style="background:${a.color || "#999"}"></span>
+      <span class="picker-option-label">${short}</span>
+      ${active ? '<svg class="picker-option-check" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ""}
+    </button>`;
+  }).join("");
+}
+function openAirlinePicker() {
+  document.getElementById("airline-picker-panel").classList.add("open");
+  document.getElementById("airline-chip").classList.add("open");
+  document.getElementById("airline-chip").setAttribute("aria-expanded", "true");
+  syncLayoutVars();
+}
+function closeAirlinePicker() {
+  document.getElementById("airline-picker-panel").classList.remove("open");
+  document.getElementById("airline-chip").classList.remove("open");
+  document.getElementById("airline-chip").setAttribute("aria-expanded", "false");
+  syncLayoutVars();
+}
+function toggleAirlinePicker() {
+  const isOpen = document.getElementById("airline-picker-panel").classList.contains("open");
+  if (isOpen) closeAirlinePicker(); else openAirlinePicker();
+}
+function pickAirline(id) {
+  switchAirline(id);
+  closeAirlinePicker();
 }
 
 function showCard(d, id) {
