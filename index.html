@@ -789,13 +789,19 @@
       #info-card {
         left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom));
         width: auto; max-width: none;
+        z-index: 24; /* 手機版航點資訊優先顯示於縮放控制上方 */
+        pointer-events: none; /* 隱藏時不阻擋縮放按鈕 */
         transform: translateY(24px) scale(.98);
       }
       #info-card[style*='opacity: 1'], #info-card[style*='opacity:1'] {
         transform: translateY(0) scale(1) !important;
+        pointer-events: auto;
       }
       .card-rows { grid-template-columns: 1fr; gap: 6px; }
-      #zoom-ctrl { right: 10px; bottom: calc(12px + env(safe-area-inset-bottom)); }
+      #zoom-ctrl {
+        right: 10px; bottom: calc(12px + env(safe-area-inset-bottom));
+        z-index: 19; /* 航點資訊展開時退到其下層 */
+      }
     }
 
 
