@@ -71,6 +71,103 @@
       background: rgba(255,255,255,0.94);
       box-shadow: 0 8px 28px rgba(0,0,0,0.08);
     }
+
+    /* Kinetics B + C: marker spring feedback, popup spring entrance and route drawing */
+    .route-popup .leaflet-popup-content-wrapper {
+      transform-origin: 50% 100%;
+      animation: popup-spring-in 420ms cubic-bezier(.18,1.25,.4,1) both;
+    }
+    .route-popup .leaflet-popup-tip-container {
+      animation: popup-tip-in 220ms ease-out both;
+    }
+    .leaflet-overlay-pane svg path.airport-marker-spring {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: airport-marker-spring 480ms cubic-bezier(.22,1,.36,1) both;
+    }
+    .leaflet-overlay-pane svg path.airport-arrival-ring {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: airport-arrival-ring 680ms cubic-bezier(.16,1,.3,1) both;
+      pointer-events: none;
+    }
+    .leaflet-overlay-pane svg path.route-line-drawing {
+      stroke-linecap: round;
+      pointer-events: none;
+    }
+    .leaflet-overlay-pane svg path.airline-marker-enter {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: airline-marker-enter 480ms cubic-bezier(.18,1.28,.38,1) both;
+      animation-delay: var(--marker-delay, 0ms);
+    }
+    .leaflet-overlay-pane svg path.airline-marker-exit {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: airline-marker-exit 170ms cubic-bezier(.4,0,1,1) both;
+      pointer-events: none;
+    }
+    .leaflet-overlay-pane svg path.airport-selected-ring {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: airport-selected-ring-in 420ms cubic-bezier(.18,1.28,.38,1) both;
+      pointer-events: none;
+      stroke-linecap: round;
+    }
+    @keyframes airport-marker-spring {
+      0%   { transform: scale(1); }
+      20%  { transform: scale(.88); }
+      55%  { transform: scale(1.28); }
+      76%  { transform: scale(.96); }
+      100% { transform: scale(1); }
+    }
+    @keyframes popup-spring-in {
+      0%   { opacity: 0; transform: translateY(10px) scale(.90); }
+      62%  { opacity: 1; transform: translateY(-2px) scale(1.025); }
+      82%  { transform: translateY(1px) scale(.992); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes popup-tip-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes airport-arrival-ring {
+      0%   { opacity: .9; transform: scale(.55); }
+      70%  { opacity: .28; }
+      100% { opacity: 0; transform: scale(2.15); }
+    }
+    @keyframes airline-marker-enter {
+      0%   { opacity: 0; transform: scale(.45); }
+      58%  { opacity: 1; transform: scale(1.18); }
+      78%  { transform: scale(.96); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes airline-marker-exit {
+      0%   { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(.68); }
+    }
+    @keyframes airport-selected-ring-in {
+      0%   { opacity: 0; transform: scale(.55); }
+      58%  { opacity: .95; transform: scale(1.15); }
+      80%  { transform: scale(.97); }
+      100% { opacity: .86; transform: scale(1); }
+    }
+    @keyframes picker-option-in {
+      0%   { opacity: 0; transform: translateY(-5px) scale(.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .route-popup .leaflet-popup-content-wrapper,
+      .route-popup .leaflet-popup-tip-container,
+      .leaflet-overlay-pane svg path.airport-marker-spring,
+      .leaflet-overlay-pane svg path.airport-arrival-ring,
+      .leaflet-overlay-pane svg path.airline-marker-enter,
+      .leaflet-overlay-pane svg path.airline-marker-exit,
+      .leaflet-overlay-pane svg path.airport-selected-ring,
+      #airline-picker-panel.open .picker-option {
+        animation: none !important;
+      }
+    }
     .route-popup-shell { min-width: 170px; max-width: 240px; }
     .route-popup-header {
       display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px;
@@ -228,7 +325,7 @@
     .airline-chip-chevron { color: #86868b; transition: transform 0.2s; flex-shrink: 0; }
     #airline-chip.open .airline-chip-chevron { transform: rotate(180deg); }
     #airline-picker-panel {
-      display: none;
+      display: grid;
       position: absolute; top: calc(100% + 6px); left: 0;
       grid-template-columns: repeat(2, minmax(126px, 1fr));
       gap: 6px; width: max-content; max-width: 300px;
@@ -240,8 +337,28 @@
       border-radius: 12px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.16);
       z-index: 30;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(-8px) scale(.96);
+      transform-origin: 24px 0;
+      transition:
+        opacity 150ms ease-out,
+        transform 360ms cubic-bezier(.18,1.25,.4,1),
+        visibility 0s linear 360ms;
+      will-change: opacity, transform;
     }
-    #airline-picker-panel.open { display: grid; }
+    #airline-picker-panel.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+      transition-delay: 0s;
+    }
+    #airline-picker-panel.open .picker-option {
+      animation: picker-option-in 280ms cubic-bezier(.22,1,.36,1) both;
+      animation-delay: calc(var(--option-index, 0) * 24ms + 35ms);
+    }
     .picker-option {
       display: flex; align-items: center; gap: 7px;
       padding: 8px 9px; border-radius: 8px;
@@ -258,6 +375,39 @@
     .picker-option-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .picker-option-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .picker-option-check { color: #86868b; flex-shrink: 0; }
+
+    @media (pointer: coarse) {
+      #airline-picker-panel {
+        position: static;
+        top: auto;
+        left: auto;
+        width: 100%;
+        max-width: none;
+        max-height: 0;
+        margin-top: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        overflow: hidden;
+        border-color: transparent;
+        box-shadow: none;
+        transform-origin: 50% 0;
+        transition:
+          max-height 390ms cubic-bezier(.22,1,.36,1),
+          margin-top 260ms ease-out,
+          padding 260ms ease-out,
+          border-color 120ms ease-out,
+          opacity 140ms ease-out,
+          transform 360ms cubic-bezier(.18,1.25,.4,1),
+          visibility 0s linear 390ms;
+      }
+      #airline-picker-panel.open {
+        max-height: 320px;
+        margin-top: 6px;
+        padding: 8px;
+        border-color: rgba(0,0,0,0.1);
+        transition-delay: 0s;
+      }
+    }
 
     #stats { display: flex; align-items: center; gap: 20px; }
     .stat-item { display: flex; flex-direction: column; align-items: flex-end; }
@@ -425,15 +575,406 @@
       margin-bottom: 8px; letter-spacing: 0.02em;
     }
     .fb-msg { min-height: 16px; font-size: 12px; margin-top: 8px; letter-spacing: 0.01em; }
+
+
+    /* ── Template C: Transparent Flight Deck ───────────────────────────── */
+    :root {
+      --deck-ink: #f6f8fb;
+      --deck-muted: rgba(230,237,246,.66);
+      --deck-panel: rgba(10,18,30,.72);
+      --deck-panel-strong: rgba(8,15,26,.88);
+      --deck-border: rgba(255,255,255,.14);
+      --deck-highlight: rgba(255,255,255,.08);
+      --deck-shadow: 0 18px 50px rgba(3,8,18,.30);
+      --deck-radius: 18px;
+    }
+    body { background: #101722; }
+    #map { background: #101722; }
+    .leaflet-tile {
+      filter: saturate(.58) brightness(.78) contrast(1.08) hue-rotate(4deg);
+    }
+    #map-shade {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 44%, transparent 34%, rgba(4,10,18,.08) 68%, rgba(3,8,15,.28) 100%),
+        linear-gradient(180deg, rgba(4,10,18,.22), transparent 26%, transparent 70%, rgba(4,10,18,.18));
+    }
+    #map-shade::after {
+      content: ""; position: absolute; inset: 0; opacity: .16;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.65), transparent 48%);
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.65), transparent 48%);
+    }
+
+    /* Floating cockpit controls — no full-width toolbar */
+    #header {
+      top: calc(16px + env(safe-area-inset-top)); left: 16px; right: 16px;
+      min-height: 0; padding: 0; background: transparent;
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+      border: 0; pointer-events: none;
+      align-items: flex-start;
+    }
+    #header-left, #stats, #header-right { pointer-events: auto; }
+    #header-left {
+      gap: 10px; align-items: stretch;
+      padding: 8px;
+      border: 1px solid var(--deck-border);
+      border-radius: var(--deck-radius);
+      background: linear-gradient(145deg, rgba(15,25,42,.82), rgba(7,14,25,.66));
+      backdrop-filter: blur(24px) saturate(145%);
+      -webkit-backdrop-filter: blur(24px) saturate(145%);
+      box-shadow: var(--deck-shadow), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    #cockpit-brand {
+      min-width: 176px; padding: 5px 10px 5px 8px;
+      display: flex; flex-direction: column; justify-content: center;
+      border-right: 1px solid rgba(255,255,255,.10);
+    }
+    .cockpit-brand-kicker {
+      color: var(--deck-muted); font-size: 9px; font-weight: 700;
+      letter-spacing: .18em; text-transform: uppercase; line-height: 1.1;
+    }
+    .cockpit-brand-title {
+      color: var(--deck-ink); margin-top: 4px; font-size: 14px;
+      font-weight: 650; letter-spacing: .015em; white-space: nowrap;
+    }
+    #airline-chip {
+      min-height: 42px; border-radius: 12px; color: var(--deck-ink);
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08);
+      transition: background 160ms ease, border-color 160ms ease, transform 160ms cubic-bezier(.22,1,.36,1);
+    }
+    #airline-chip:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.14); transform: translateY(-1px); }
+    .airline-chip-label { color: var(--deck-ink); }
+    .airline-chip-chevron { color: var(--deck-muted); }
+    #airline-picker-panel {
+      top: calc(100% + 12px); left: -8px;
+      background: var(--deck-panel-strong); color: var(--deck-ink);
+      border: 1px solid var(--deck-border); border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(2,7,16,.42), inset 0 1px 0 rgba(255,255,255,.05);
+      backdrop-filter: blur(26px) saturate(150%);
+      -webkit-backdrop-filter: blur(26px) saturate(150%);
+    }
+    .picker-option { color: var(--deck-ink); }
+    .picker-option:hover { background: rgba(255,255,255,.08); }
+    .picker-option.active { background: rgba(255,255,255,.11); border-color: rgba(255,255,255,.10); }
+    .picker-option-check { color: var(--deck-muted); }
+
+    #stats {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      padding: 9px 16px; min-width: 104px; justify-content: center;
+      border: 1px solid var(--deck-border); border-radius: 999px;
+      background: var(--deck-panel); backdrop-filter: blur(22px) saturate(145%);
+      -webkit-backdrop-filter: blur(22px) saturate(145%);
+      box-shadow: 0 12px 34px rgba(3,8,18,.24), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .stat-item { align-items: center; }
+    .stat-value { font-size: 15px; font-weight: 700; }
+    .stat-sub { color: var(--deck-muted); font-size: 9px; letter-spacing: .08em; }
+
+    #header-right { align-items: flex-start; }
+    .fb-fab {
+      height: 46px; padding: 0 15px; border-radius: 15px;
+      border: 1px solid rgba(255,255,255,.16) !important;
+      box-shadow: 0 14px 36px rgba(3,8,18,.28), inset 0 1px 0 rgba(255,255,255,.10);
+    }
+
+    /* Search becomes the central avionics command bar */
+    #search-wrap {
+      top: calc(82px + env(safe-area-inset-top)) !important;
+      width: min(390px, calc(100vw - 32px)); z-index: 21;
+    }
+    #search-input {
+      height: 44px; padding-left: 42px; color: var(--deck-ink);
+      background: rgba(8,16,28,.76);
+      border: 1px solid rgba(255,255,255,.15) !important;
+      border-radius: 14px;
+      box-shadow: 0 14px 38px rgba(3,8,18,.24), inset 0 1px 0 rgba(255,255,255,.06);
+      backdrop-filter: blur(24px) saturate(145%);
+      -webkit-backdrop-filter: blur(24px) saturate(145%);
+      transition: transform 240ms cubic-bezier(.22,1,.36,1), background 180ms ease, border-color 180ms ease;
+    }
+    #search-input::placeholder { color: rgba(230,237,246,.52); }
+    #search-input:focus { transform: translateY(-1px) scale(1.012); background: rgba(8,16,28,.90); }
+    #search-icon circle, #search-icon path { stroke: rgba(230,237,246,.72); }
+    #search-results {
+      margin-top: 8px; color: var(--deck-ink);
+      background: rgba(8,15,26,.92); border: 1px solid var(--deck-border);
+      border-radius: 14px; box-shadow: 0 18px 48px rgba(2,7,16,.38);
+    }
+    .result-city { color: var(--deck-ink); }
+    .result-meta { color: var(--deck-muted); }
+
+    /* Route information becomes a bottom flight-deck drawer */
+    #info-card {
+      left: 50%; bottom: calc(20px + env(safe-area-inset-bottom));
+      width: min(560px, calc(100vw - 120px)); max-width: 560px;
+      transform: translate(-50%, 24px) scale(.98);
+      padding: 14px 18px 16px;
+      color: var(--deck-ink);
+      background: linear-gradient(145deg, rgba(13,23,38,.90), rgba(7,14,25,.78));
+      border: 1px solid var(--deck-border);
+      border-radius: 20px;
+      box-shadow: 0 22px 64px rgba(2,7,16,.42), inset 0 1px 0 rgba(255,255,255,.06);
+      backdrop-filter: blur(28px) saturate(150%);
+      -webkit-backdrop-filter: blur(28px) saturate(150%);
+      transition: opacity 220ms ease, transform 460ms cubic-bezier(.18,1.22,.38,1);
+    }
+    #info-card::before {
+      content: ""; display: block; width: 38px; height: 3px;
+      margin: -2px auto 10px; border-radius: 99px; background: rgba(255,255,255,.22);
+    }
+    #info-card[style*='opacity: 1'], #info-card[style*='opacity:1'] {
+      transform: translate(-50%, 0) scale(1) !important;
+    }
+    .drawer-kicker {
+      color: var(--deck-muted); font-size: 9px; font-weight: 700;
+      letter-spacing: .16em; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .card-header { margin-bottom: 12px; }
+    .card-iata { color: var(--deck-ink); font-size: 27px; }
+    .card-city { color: var(--deck-muted); }
+    .card-rows { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px 18px; }
+    .card-row { padding-top: 7px; border-top: 1px solid rgba(255,255,255,.08); }
+    .card-key { color: var(--deck-muted); }
+    .card-val { color: var(--deck-ink); }
+
+    /* Dark glass route popup; existing spring keyframes remain unchanged */
+    .route-popup .leaflet-popup-content-wrapper {
+      background: rgba(8,15,26,.90); border: 1px solid var(--deck-border);
+      box-shadow: 0 18px 54px rgba(2,7,16,.42), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .route-popup .leaflet-popup-content { color: var(--deck-ink); }
+    .route-popup .leaflet-popup-tip { background: rgba(8,15,26,.90); }
+    .route-popup-city, .route-popup-key { color: var(--deck-muted); }
+    .route-popup-iata, .route-popup-val { color: var(--deck-ink); }
+    .origin-pick-btn { color: var(--deck-ink); background: rgba(255,255,255,.07); }
+    .origin-pick-btn:hover { background: rgba(255,255,255,.12); }
+
+    #zoom-ctrl {
+      right: 18px; bottom: calc(22px + env(safe-area-inset-bottom));
+      border: 1px solid var(--deck-border); border-radius: 14px;
+      box-shadow: 0 14px 38px rgba(3,8,18,.26);
+    }
+    .zoom-btn { color: var(--deck-ink); background: rgba(8,16,28,.80); }
+    .zoom-btn:hover { background: rgba(255,255,255,.13); }
+    .zoom-btn.zoom-out { border-top-color: rgba(255,255,255,.10); }
+    .leaflet-tooltip { color: rgba(240,244,249,.86) !important; text-shadow: 0 1px 4px rgba(0,0,0,.85); }
+
+    @media (max-width: 860px), (pointer: coarse) {
+      #header {
+        top: calc(8px + env(safe-area-inset-top)); left: 10px; right: 10px;
+        flex-direction: row; align-items: flex-start; gap: 8px;
+      }
+      #header-left { width: auto; flex: 1; min-width: 0; padding: 6px; }
+      #cockpit-brand { min-width: 0; width: 112px; padding-left: 6px; }
+      .cockpit-brand-kicker { display: none; }
+      .cockpit-brand-title { font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+      #airline-picker { width: auto; flex: 1; min-width: 0; }
+      #airline-chip { width: 100%; min-width: 0; padding: 8px 10px; }
+      .airline-chip-label { overflow: hidden; text-overflow: ellipsis; }
+      #airline-picker-panel {
+        position: absolute; top: calc(100% + 10px); left: 0;
+        width: min(330px, calc(100vw - 20px)); max-width: none;
+        grid-template-columns: 1fr 1fr; margin-top: 0;
+        box-shadow: 0 20px 56px rgba(2,7,16,.46);
+      }
+      #stats { display: none; }
+      #header-right { width: auto; }
+      .fb-fab { width: 44px; height: 44px; padding: 0; border-radius: 14px; }
+      .fb-fab-label { display: none; }
+      #search-wrap { top: calc(72px + env(safe-area-inset-top)) !important; }
+      #info-card {
+        left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom));
+        width: auto; max-width: none;
+        transform: translateY(24px) scale(.98);
+      }
+      #info-card[style*='opacity: 1'], #info-card[style*='opacity:1'] {
+        transform: translateY(0) scale(1) !important;
+      }
+      .card-rows { grid-template-columns: 1fr; gap: 6px; }
+      #zoom-ctrl { right: 10px; bottom: calc(12px + env(safe-area-inset-bottom)); }
+    }
+
+
+    /* ── Route Filters v1 ─────────────────────────────────────────────── */
+    #filter-bar {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 8px; pointer-events: auto;
+    }
+    #filter-trigger {
+      height: 34px; padding: 0 12px; border-radius: 11px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      color: var(--deck-ink); background: rgba(8,16,28,.76);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 10px 28px rgba(3,8,18,.20), inset 0 1px 0 rgba(255,255,255,.05);
+      backdrop-filter: blur(20px) saturate(145%);
+      -webkit-backdrop-filter: blur(20px) saturate(145%);
+      font: 650 11px/1 -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      letter-spacing: .03em; cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: transform 180ms cubic-bezier(.22,1,.36,1), background 160ms ease, border-color 160ms ease;
+    }
+    #filter-trigger:hover { transform: translateY(-1px); background: rgba(16,27,44,.90); border-color: rgba(255,255,255,.22); }
+    #filter-trigger:active { transform: scale(.96); }
+    #filter-trigger.is-active { border-color: var(--filter-accent, rgba(255,255,255,.28)); }
+    #filter-trigger svg { flex: 0 0 auto; }
+    #filter-count-badge {
+      min-width: 17px; height: 17px; padding: 0 5px; border-radius: 999px;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #fff; background: var(--filter-accent, #5b9bd5);
+      font-size: 9px; font-weight: 750;
+    }
+    #filter-result-summary {
+      height: 34px; padding: 0 11px; border-radius: 11px;
+      display: inline-flex; align-items: center; gap: 4px;
+      color: var(--deck-muted); background: rgba(8,16,28,.58);
+      border: 1px solid rgba(255,255,255,.09);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      font-size: 10px; white-space: nowrap;
+    }
+    #filter-result-summary strong { color: var(--deck-ink); font-size: 11px; }
+
+    #filter-backdrop {
+      position: fixed; inset: 0; z-index: 34; display: none;
+      background: rgba(2,7,16,.48); opacity: 0; pointer-events: none;
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      transition: opacity 220ms ease;
+    }
+    #filter-panel {
+      position: fixed; z-index: 35; left: 50%; top: 150px;
+      width: min(410px, calc(100vw - 28px)); max-height: min(620px, calc(100dvh - 180px));
+      display: flex; flex-direction: column; overflow: hidden;
+      color: var(--deck-ink);
+      background: linear-gradient(145deg, rgba(13,23,38,.96), rgba(7,14,25,.92));
+      border: 1px solid var(--deck-border); border-radius: 20px;
+      box-shadow: 0 24px 70px rgba(2,7,16,.52), inset 0 1px 0 rgba(255,255,255,.06);
+      backdrop-filter: blur(30px) saturate(150%);
+      -webkit-backdrop-filter: blur(30px) saturate(150%);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transform: translate(-50%, -10px) scale(.975);
+      transform-origin: 50% 0;
+      transition: opacity 180ms ease, visibility 0s linear 220ms, transform 380ms cubic-bezier(.18,1.18,.38,1);
+    }
+    #filter-panel.open {
+      opacity: 1; visibility: visible; pointer-events: auto;
+      transform: translate(-50%, 0) scale(1);
+      transition-delay: 0s;
+    }
+    .filter-sheet-handle { display: none; }
+    .filter-panel-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 16px 17px 13px; border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .filter-title-wrap { min-width: 0; }
+    .filter-eyebrow {
+      color: var(--deck-muted); font-size: 8px; font-weight: 750;
+      letter-spacing: .17em; text-transform: uppercase;
+    }
+    .filter-title { margin-top: 4px; font-size: 15px; font-weight: 700; letter-spacing: .01em; }
+    .filter-close {
+      width: 32px; height: 32px; border: 0; border-radius: 10px;
+      display: grid; place-items: center; flex: 0 0 auto;
+      color: var(--deck-muted); background: rgba(255,255,255,.07); cursor: pointer;
+      transition: transform 160ms cubic-bezier(.22,1,.36,1), background 150ms ease;
+    }
+    .filter-close:hover { color: var(--deck-ink); background: rgba(255,255,255,.12); transform: rotate(3deg) scale(1.04); }
+    #filter-groups { overflow: auto; padding: 4px 17px 12px; overscroll-behavior: contain; }
+    .filter-group { padding: 14px 0 13px; border-bottom: 1px solid rgba(255,255,255,.075); }
+    .filter-group:last-child { border-bottom: 0; }
+    .filter-group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .filter-group-title { font-size: 12px; font-weight: 700; }
+    .filter-group-note { color: var(--deck-muted); font-size: 9px; }
+    .filter-chip-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .filter-chip {
+      min-height: 31px; padding: 0 10px; border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 6px;
+      color: rgba(238,243,249,.78); background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.08); cursor: pointer;
+      font: 600 10px/1 -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 170ms cubic-bezier(.22,1,.36,1), background 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+    .filter-chip:hover { transform: translateY(-1px); color: var(--deck-ink); background: rgba(255,255,255,.09); }
+    .filter-chip:active { transform: scale(.95); }
+    .filter-chip.active {
+      color: #fff; background: rgba(91,155,213,.24);
+      border-color: var(--filter-accent, #5b9bd5);
+      background: color-mix(in srgb, var(--filter-accent, #5b9bd5) 32%, rgba(255,255,255,.07));
+      border-color: color-mix(in srgb, var(--filter-accent, #5b9bd5) 72%, transparent);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    .filter-chip-count { color: var(--deck-muted); font-size: 8px; }
+    .filter-chip.active .filter-chip-count { color: rgba(255,255,255,.72); }
+    .filter-panel-footer {
+      padding: 12px 17px calc(12px + env(safe-area-inset-bottom));
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      border-top: 1px solid rgba(255,255,255,.08); background: rgba(5,11,20,.54);
+    }
+    .filter-footer-result { color: var(--deck-muted); font-size: 10px; line-height: 1.35; }
+    .filter-footer-result strong { display: block; color: var(--deck-ink); font-size: 13px; }
+    #filter-reset {
+      min-height: 34px; padding: 0 13px; border-radius: 11px;
+      color: var(--deck-ink); background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10); cursor: pointer;
+      font-size: 10px; font-weight: 700;
+    }
+    #filter-empty {
+      display: none; padding: 10px 12px; margin-top: 10px; border-radius: 11px;
+      color: #ffd7d7; background: rgba(239,68,68,.10); border: 1px solid rgba(239,68,68,.18);
+      font-size: 10px; line-height: 1.4;
+    }
+    #filter-empty.show { display: block; }
+
+    @media (max-width: 860px), (pointer: coarse) {
+      #filter-bar { margin-top: 7px; }
+      #filter-trigger, #filter-result-summary { height: 32px; }
+      #filter-trigger { padding: 0 11px; }
+      #filter-result-summary { max-width: 135px; overflow: hidden; text-overflow: ellipsis; }
+      #filter-backdrop { display: block; }
+      #filter-backdrop.open { opacity: 1; pointer-events: auto; }
+      #filter-panel {
+        left: 0; right: 0; top: auto !important; bottom: 0; width: 100%;
+        max-height: min(78dvh, 680px); border-radius: 24px 24px 0 0;
+        transform: translateY(104%); transform-origin: 50% 100%;
+        opacity: 1; visibility: visible;
+        transition: transform 460ms cubic-bezier(.18,1.08,.36,1), box-shadow 220ms ease;
+      }
+      #filter-panel.open { transform: translateY(0); }
+      .filter-sheet-handle {
+        display: block; width: 42px; height: 4px; margin: 9px auto 0;
+        border-radius: 999px; background: rgba(255,255,255,.22);
+      }
+      .filter-panel-header { padding-top: 10px; }
+      #filter-groups { padding-left: 15px; padding-right: 15px; }
+      .filter-panel-footer { padding-left: 15px; padding-right: 15px; }
+      .filter-chip { min-height: 34px; padding: 0 11px; font-size: 11px; }
+      body.filter-open #map { pointer-events: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #filter-panel, #filter-backdrop, #filter-trigger, .filter-chip { transition-duration: 0.01ms !important; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #search-input, #info-card, #airline-chip { transition-duration: 0.01ms !important; }
+    }
+
   </style>
 </head>
 <body>
 <div id="app">
   <div id="map"></div>
+  <div id="map-shade" aria-hidden="true"></div>
 
   <!-- Header -->
   <div id="header">
     <div id="header-left">
+      <div id="cockpit-brand" aria-label="台灣航空路線地圖">
+        <span class="cockpit-brand-kicker">Flight Network</span>
+        <span class="cockpit-brand-title">台灣航空路線地圖</span>
+      </div>
       <!-- 統一用膠囊按鈕＋展開選單取代原本橫排 tabs，避免航空公司變多時橫向擠壓/溢出 -->
       <div id="airline-picker">
         <button id="airline-chip" type="button" onclick="toggleAirlinePicker()" aria-haspopup="listbox" aria-expanded="false">
@@ -443,7 +984,7 @@
             <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <div id="airline-picker-panel" role="listbox"></div>
+        <div id="airline-picker-panel" role="listbox" aria-hidden="true"></div>
       </div>
     </div>
     <div id="stats">
@@ -476,10 +1017,41 @@
       <input id="search-input" type="text" placeholder="搜尋城市或 IATA 代碼" oninput="onSearch(this.value)" />
     </div>
     <div id="search-results"></div>
+    <div id="filter-bar" aria-label="航線篩選摘要">
+      <button id="filter-trigger" type="button" onclick="toggleFilterPanel()" aria-haspopup="dialog" aria-controls="filter-panel" aria-expanded="false">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2.5 4h11M4.5 8h7M6.5 12h3" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+          <circle cx="5" cy="4" r="1.15" fill="currentColor"/><circle cx="10.5" cy="8" r="1.15" fill="currentColor"/><circle cx="8" cy="12" r="1.15" fill="currentColor"/>
+        </svg>
+        <span>篩選</span>
+        <span id="filter-count-badge" hidden>0</span>
+      </button>
+      <div id="filter-result-summary" aria-live="polite"><strong id="filter-result-count">0</strong><span>條航線</span></div>
+    </div>
   </div>
+
+  <div id="filter-backdrop" aria-hidden="true" onclick="closeFilterPanel()"></div>
+  <section id="filter-panel" role="dialog" aria-modal="false" aria-labelledby="filter-panel-title" aria-hidden="true">
+    <div class="filter-sheet-handle" aria-hidden="true"></div>
+    <div class="filter-panel-header">
+      <div class="filter-title-wrap">
+        <div class="filter-eyebrow">Route filters</div>
+        <div class="filter-title" id="filter-panel-title">篩選航線</div>
+      </div>
+      <button class="filter-close" type="button" onclick="closeFilterPanel()" aria-label="關閉篩選">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="filter-groups"></div>
+    <div class="filter-panel-footer">
+      <div class="filter-footer-result" aria-live="polite"><strong id="filter-footer-count">0 條航線</strong><span id="filter-footer-dest">0 個航點</span></div>
+      <button id="filter-reset" type="button" onclick="resetRouteFilters()">重設篩選</button>
+    </div>
+  </section>
 
   <!-- Info card -->
   <div id="info-card">
+    <div class="drawer-kicker">已選航點</div>
     <div class="card-header">
       <span class="card-iata" id="card-iata"></span>
       <span class="card-city" id="card-city"></span>
@@ -520,15 +1092,19 @@
 
 <script>
 let map = null;
+let headerResizeObserver = null;
+let headerResizeFrame = null;
 
+function syncHeaderOffset() {
+  const header = document.getElementById("header");
+  if (!header) return;
+  const searchTop = Math.ceil(header.getBoundingClientRect().height + 12);
+  document.documentElement.style.setProperty("--search-top", `${searchTop}px`);
+}
 function syncLayoutVars() {
   const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   document.documentElement.style.setProperty("--app-height", `${Math.round(viewportHeight)}px`);
-  const header = document.getElementById("header");
-  if (header) {
-    const searchTop = Math.ceil(header.getBoundingClientRect().height + 12);
-    document.documentElement.style.setProperty("--search-top", `${searchTop}px`);
-  }
+  syncHeaderOffset();
   if (map) {
     window.requestAnimationFrame(() => map.invalidateSize());
   }
@@ -573,9 +1149,175 @@ function routeKey(d) {
   return `${d.iata}__${d.origin || ""}`;
 }
 const isTouchDevice = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const markerRadius = isTouchDevice ? 7 : 4;
 const hitRadius = isTouchDevice ? 20 : 10;
 let activeRoutePopup = null;
+let routeAnimationToken = 0;
+let routeDrawTimer = null;
+let selectedAirportRing = null;
+let selectedAirportKey = null;
+
+function restartPathAnimation(path, className) {
+  if (!path || prefersReducedMotion) return;
+  path.classList.remove(className);
+  void path.getBoundingClientRect();
+  path.classList.add(className);
+  path.addEventListener("animationend", () => path.classList.remove(className), { once: true });
+}
+
+function animateAirportMarker(d, id) {
+  const route = layers[id] && layers[id][routeKey(d)];
+  const path = route && route.marker && route.marker.getElement();
+  if (path) path.classList.remove("airline-marker-enter", "airline-marker-exit");
+  restartPathAnimation(path, "airport-marker-spring");
+}
+
+function animateLayerEnter(layer, delay = 0) {
+  if (prefersReducedMotion || !layer) return;
+  const path = layer.getElement && layer.getElement();
+  if (!path) return;
+  path.classList.remove("airline-marker-exit", "airline-marker-enter");
+  path.style.setProperty("--marker-delay", `${Math.max(0, delay)}ms`);
+  void path.getBoundingClientRect();
+  path.classList.add("airline-marker-enter");
+  window.setTimeout(() => {
+    if (!path.isConnected) return;
+    path.classList.remove("airline-marker-enter");
+    path.style.removeProperty("--marker-delay");
+  }, 520 + Math.max(0, delay));
+}
+
+function hideRouteWithTransition(route, ownerId) {
+  if (!route) return;
+  const remove = () => {
+    if (activeAirline === ownerId || !map) return;
+    if (map.hasLayer(route.hit)) map.removeLayer(route.hit);
+    if (map.hasLayer(route.marker)) map.removeLayer(route.marker);
+  };
+  if (prefersReducedMotion) {
+    remove();
+    return;
+  }
+  const path = route.marker && route.marker.getElement();
+  if (path) {
+    path.classList.remove("airline-marker-enter");
+    path.classList.add("airline-marker-exit");
+  }
+  window.setTimeout(remove, 180);
+}
+
+function hideHubWithTransition(marker, ownerId) {
+  if (!marker || !map || !map.hasLayer(marker)) return;
+  const remove = () => {
+    if (activeAirline !== ownerId && map.hasLayer(marker)) map.removeLayer(marker);
+  };
+  if (prefersReducedMotion) {
+    remove();
+    return;
+  }
+  const path = marker.getElement && marker.getElement();
+  if (path) {
+    path.classList.remove("airline-marker-enter");
+    path.classList.add("airline-marker-exit");
+  }
+  window.setTimeout(remove, 180);
+}
+
+function clearSelectedAirport() {
+  selectedAirportKey = null;
+  if (selectedAirportRing && map && map.hasLayer(selectedAirportRing)) {
+    map.removeLayer(selectedAirportRing);
+  }
+  selectedAirportRing = null;
+}
+
+function selectAirport(d, id) {
+  if (!map || !d) return;
+  const key = `${id}__${routeKey(d)}`;
+  clearSelectedAirport();
+  const meta = AIRLINE_META_INFO[id] || {};
+  selectedAirportKey = key;
+  selectedAirportRing = L.circleMarker(mapCoord(d.coords, d.iata), {
+    radius: markerRadius + (isTouchDevice ? 6 : 5),
+    color: meta.color || "#1d1d1f",
+    fill: false,
+    weight: isTouchDevice ? 2.4 : 2,
+    opacity: 0.86,
+    interactive: false
+  }).addTo(map);
+  const path = selectedAirportRing.getElement();
+  if (path && !prefersReducedMotion) path.classList.add("airport-selected-ring");
+
+  const route = layers[id] && layers[id][routeKey(d)];
+  if (route && route.marker && route.marker.bringToFront) route.marker.bringToFront();
+  if (route && route.hit && route.hit.bringToFront) route.hit.bringToFront();
+}
+
+function animateArrivalPulse(d, id) {
+  if (prefersReducedMotion || !map) return;
+  const meta = AIRLINE_META_INFO[id] || {};
+  const pulse = L.circleMarker(mapCoord(d.coords, d.iata), {
+    radius: markerRadius + 2,
+    color: meta.color || "#1d1d1f",
+    fill: false,
+    weight: 2,
+    opacity: 0.9,
+    interactive: false
+  }).addTo(map);
+  const path = pulse.getElement();
+  if (!path) {
+    map.removeLayer(pulse);
+    return;
+  }
+  path.classList.add("airport-arrival-ring");
+  window.setTimeout(() => {
+    if (map && map.hasLayer(pulse)) map.removeLayer(pulse);
+  }, 720);
+}
+
+function cancelRouteDrawAnimation() {
+  routeAnimationToken += 1;
+  if (routeDrawTimer) {
+    window.clearTimeout(routeDrawTimer);
+    routeDrawTimer = null;
+  }
+}
+
+function animateRouteDraw(line, d, id) {
+  if (prefersReducedMotion || !line) return;
+  const path = line.getElement();
+  if (!path || typeof path.getTotalLength !== "function") return;
+
+  const token = ++routeAnimationToken;
+  const length = Math.max(1, Math.ceil(path.getTotalLength()));
+  path.classList.add("route-line-drawing");
+  path.style.transition = "none";
+  path.style.strokeDasharray = `${length} ${length}`;
+  path.style.strokeDashoffset = `${length}`;
+  path.style.opacity = "0.12";
+  void path.getBoundingClientRect();
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      if (token !== routeAnimationToken) return;
+      path.style.transition = "stroke-dashoffset 780ms cubic-bezier(.22,1,.36,1), opacity 180ms ease-out";
+      path.style.strokeDashoffset = "0";
+      path.style.opacity = "0.65";
+    });
+  });
+
+  routeDrawTimer = window.setTimeout(() => {
+    if (token !== routeAnimationToken) return;
+    path.style.transition = "";
+    path.style.strokeDasharray = "";
+    path.style.strokeDashoffset = "";
+    path.style.opacity = "0.65";
+    path.classList.remove("route-line-drawing");
+    routeDrawTimer = null;
+    animateArrivalPulse(d, id);
+  }, 820);
+}
 function estimateFlightTime(distanceKm) {
   // Very rough block-time estimate: cruise + taxi/takeoff/landing overhead.
   let cruiseSpeed = 820;
@@ -610,6 +1352,7 @@ function routeRows(d, id) {
   if (d.origin && d.origin !== (meta.hub || "TPE")) rows.push(["出發樞紐", HUB_LABELS[d.origin] || d.origin]);
   if (d.status === "SUSPENDED") rows.unshift(["狀態", "⚠️ 目前停飛"]);
   else if (d.status === "SEASONAL") rows.unshift(["狀態", "季節限定航班"]);
+  else if (d.status === "SCHEDULED") rows.unshift(["狀態", d.effectiveDate ? `🗓️ 即將開航（${d.effectiveDate}）` : "🗓️ 即將開航"]);
   return rows;
 }
 function routePopupHtml(d, id) {
@@ -667,9 +1410,14 @@ function pickOrigin(idx) {
   showCard(d, id);
 }
 function handleMarkerClick(d, id) {
-  const candidates = AIRLINES[id].filter(x => x.iata === d.iata);
-  if (candidates.length > 1) showOriginPicker(candidates, id);
-  else showCard(d, id);
+  animateAirportMarker(d, id);
+  const candidates = getFilteredRoutes(id).filter(x => x.iata === d.iata);
+  if (candidates.length > 1) {
+    selectAirport(d, id);
+    showOriginPicker(candidates, id);
+  } else {
+    showCard(d, id);
+  }
 }
 function renderInfoCard(d, id) {
   const meta = AIRLINE_META_INFO[id] || {};
@@ -685,14 +1433,19 @@ function renderInfoCard(d, id) {
   ).join("");
 
   card.style.opacity = "1";
-  card.style.transform = "translateY(0) scale(1)";
+  card.style.transform = window.matchMedia("(max-width: 860px), (pointer: coarse)").matches
+    ? "translateY(0) scale(1)"
+    : "translate(-50%, 0) scale(1)";
 }
 function hideInfoCard() {
   const card = document.getElementById("info-card");
   card.style.opacity = "0";
-  card.style.transform = "translateY(6px) scale(0.98)";
+  card.style.transform = window.matchMedia("(max-width: 860px), (pointer: coarse)").matches
+    ? "translateY(24px) scale(.98)"
+    : "translate(-50%, 24px) scale(.98)";
 }
 function closeRoutePopup() {
+  cancelRouteDrawAnimation();
   if (activeRoutePopup) {
     map.closePopup(activeRoutePopup);
     activeRoutePopup = null;
@@ -702,7 +1455,7 @@ function closeRoutePopup() {
     activeLine = null;
   }
 }
-function openRoutePopup(d, id, pinned = false) {
+function openRoutePopup(d, id, pinned = false, showPopup = true) {
   closeRoutePopup();
   const meta = AIRLINE_META_INFO[id] || {};
   const rawHub = HUB_COORDS[d.origin] || meta.hubCoords || HUB_COORDS.TPE;
@@ -710,17 +1463,20 @@ function openRoutePopup(d, id, pinned = false) {
   const viewCoord = mapCoord(d.coords, d.iata);
   activeLine = L.polyline(
     bezierArc(hubCoord, viewCoord, LEFT_SIDE_AIRPORTS.has(d.iata)),
-    { color:meta.color || "#000", weight:1.5, opacity:0.5 }
+    { color:meta.color || "#000", weight:1.8, opacity:0.65, interactive:false }
   ).addTo(map);
-  activeRoutePopup = L.popup({
-    className: "route-popup",
-    closeButton: false,
-    autoClose: false,
-    closeOnClick: false,
-    autoPan: true,
-    keepInView: true,
-    offset: isTouchDevice ? [18, 0] : [14, 0]
-  }).setLatLng(viewCoord).setContent(routePopupHtml(d, id)).openOn(map);
+  animateRouteDraw(activeLine, d, id);
+  if (showPopup) {
+    activeRoutePopup = L.popup({
+      className: "route-popup",
+      closeButton: false,
+      autoClose: false,
+      closeOnClick: false,
+      autoPan: true,
+      keepInView: true,
+      offset: [14, 0]
+    }).setLatLng(viewCoord).setContent(routePopupHtml(d, id)).openOn(map);
+  }
 }
 function freqLabel(freq) {
   if (!freq) return null;
@@ -748,6 +1504,7 @@ const HUB_COORDS = {
   KHH: [22.5771, 120.3500],
   ICN: [37.4602, 126.4407],
   PUS: [35.1795, 128.9382],
+  RMQ: [24.2647, 120.6222],
 };
 const HUB_LABELS = {
   TPE: "TPE 桃園",
@@ -763,6 +1520,7 @@ const HUB_LABELS = {
   KHH: "KHH 高雄",
   ICN: "ICN 首爾仁川",
   PUS: "PUS 釜山",
+  RMQ: "RMQ 台中",
   BOTH: "松山／桃園雙樞紐",
 };
 // 所有航空公司代碼統一在此維護，新增/移除航空公司只需改這裡
@@ -775,6 +1533,207 @@ const AIRLINE_SHORT_LABELS = {
 const AIRLINE_META_INFO = window.AIRLINE_META || {};
 const AIRLINES = Object.fromEntries(AIRLINE_IDS.map(id => [id, AIRLINE_DATA[id] || []]));
 
+
+// ── FILTER STATE ──────────────────────────────────────────────────────────────
+const DEFAULT_ROUTE_STATUSES = new Set(["ACTIVE", "SEASONAL"]);
+const ROUTE_STATUS_OPTIONS = [
+  { value: "ACTIVE", label: "正常營運" },
+  { value: "SEASONAL", label: "季節航班" },
+  { value: "SCHEDULED", label: "即將開航" },
+  { value: "SUSPENDED", label: "目前停飛" },
+];
+const REGION_LABEL_FALLBACK = {
+  JAPAN: "日本", KOREA: "韓國", CHINA: "中國大陸", HONG_KONG_MACAU: "港澳",
+  NORTHEAST_ASIA: "東北亞", NE_ASIA: "東北亞", SOUTHEAST_ASIA: "東南亞", SEA: "東南亞",
+  SOUTH_ASIA: "南亞", CENTRAL_ASIA: "中亞", MIDDLE_EAST: "中東", EUROPE: "歐洲",
+  NORTH_AMERICA: "北美", SOUTH_AMERICA: "南美", OCEANIA: "大洋洲", AFRICA: "非洲",
+  DOMESTIC: "國內線", TAIWAN: "台灣"
+};
+const routeFilters = {
+  origins: new Set(),
+  regions: new Set(),
+  statuses: new Set(DEFAULT_ROUTE_STATUSES),
+};
+let filterPanelOpen = false;
+
+function routeStatusKey(d) {
+  if (d && d.status === "SUSPENDED") return "SUSPENDED";
+  if (d && d.status === "SEASONAL") return "SEASONAL";
+  if (d && d.status === "SCHEDULED") return "SCHEDULED";
+  return "ACTIVE";
+}
+function filterRegionLabel(region) {
+  if (typeof REGION_LABELS !== "undefined" && REGION_LABELS && REGION_LABELS[region]) return REGION_LABELS[region];
+  if (REGION_LABEL_FALLBACK[region]) return REGION_LABEL_FALLBACK[region];
+  return String(region || "未分類").replace(/_/g, " ");
+}
+function routeMatchesFilters(d) {
+  const originMatch = routeFilters.origins.size === 0 || routeFilters.origins.has(d.origin || "UNKNOWN");
+  const regionMatch = routeFilters.regions.size === 0 || routeFilters.regions.has(d.region || "UNKNOWN");
+  const statusMatch = routeFilters.statuses.size === 0 || routeFilters.statuses.has(routeStatusKey(d));
+  return originMatch && regionMatch && statusMatch;
+}
+function getFilteredRoutes(id = activeAirline) {
+  return (AIRLINES[id] || []).filter(routeMatchesFilters);
+}
+function countActiveFilterGroups() {
+  let count = 0;
+  if (routeFilters.origins.size > 0) count++;
+  if (routeFilters.regions.size > 0) count++;
+  const defaultStatus = routeFilters.statuses.size === DEFAULT_ROUTE_STATUSES.size &&
+    [...DEFAULT_ROUTE_STATUSES].every(v => routeFilters.statuses.has(v));
+  if (!defaultStatus) count++;
+  return count;
+}
+function optionCounts(routes, accessor) {
+  const counts = new Map();
+  routes.forEach(d => {
+    const key = accessor(d) || "UNKNOWN";
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  return counts;
+}
+function filterChipHtml(group, value, label, count, active) {
+  return `<button type="button" class="filter-chip${active ? " active" : ""}" data-filter-group="${group}" data-filter-value="${value}" onclick="toggleRouteFilter('${group}','${value}')" aria-pressed="${active}">
+    <span>${label}</span>${Number.isFinite(count) ? `<span class="filter-chip-count">${count}</span>` : ""}
+  </button>`;
+}
+function renderFilterPanel() {
+  const routes = AIRLINES[activeAirline] || [];
+  const originCounts = optionCounts(routes, d => d.origin || "UNKNOWN");
+  const regionCounts = optionCounts(routes, d => d.region || "UNKNOWN");
+  const statusCounts = optionCounts(routes, routeStatusKey);
+  const origins = [...originCounts.keys()].sort((a, b) => (HUB_LABELS[a] || a).localeCompare(HUB_LABELS[b] || b, "zh-Hant"));
+  const regions = [...regionCounts.keys()].sort((a, b) => filterRegionLabel(a).localeCompare(filterRegionLabel(b), "zh-Hant"));
+
+  const groups = document.getElementById("filter-groups");
+  if (!groups) return;
+  const originAll = routeFilters.origins.size === 0;
+  const regionAll = routeFilters.regions.size === 0;
+  const statusAll = routeFilters.statuses.size === 0;
+  groups.innerHTML = `
+    <div class="filter-group">
+      <div class="filter-group-head"><span class="filter-group-title">出發機場</span><span class="filter-group-note">同組可複選</span></div>
+      <div class="filter-chip-list">
+        ${filterChipHtml("origins", "__ALL__", "全部", routes.length, originAll)}
+        ${origins.map(origin => filterChipHtml("origins", origin, HUB_LABELS[origin] || origin, originCounts.get(origin), routeFilters.origins.has(origin))).join("")}
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-head"><span class="filter-group-title">地區</span><span class="filter-group-note">依資料分類</span></div>
+      <div class="filter-chip-list">
+        ${filterChipHtml("regions", "__ALL__", "全部", routes.length, regionAll)}
+        ${regions.map(region => filterChipHtml("regions", region, filterRegionLabel(region), regionCounts.get(region), routeFilters.regions.has(region))).join("")}
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-head"><span class="filter-group-title">航線狀態</span><span class="filter-group-note">預設隱藏停飛與未開航</span></div>
+      <div class="filter-chip-list">
+        ${filterChipHtml("statuses", "__ALL__", "全部", routes.length, statusAll)}
+        ${ROUTE_STATUS_OPTIONS.map(opt => filterChipHtml("statuses", opt.value, opt.label, statusCounts.get(opt.value) || 0, routeFilters.statuses.has(opt.value))).join("")}
+      </div>
+      <div id="filter-empty">目前條件沒有符合航線，可按「重設篩選」恢復預設。</div>
+    </div>`;
+  updateFilterSummary();
+}
+function updateFilterSummary() {
+  const filtered = getFilteredRoutes();
+  const destinationCount = new Set(filtered.map(d => d.iata)).size;
+  const groupCount = countActiveFilterGroups();
+  const badge = document.getElementById("filter-count-badge");
+  const trigger = document.getElementById("filter-trigger");
+  const resultCount = document.getElementById("filter-result-count");
+  const footerCount = document.getElementById("filter-footer-count");
+  const footerDest = document.getElementById("filter-footer-dest");
+  const empty = document.getElementById("filter-empty");
+  if (badge) { badge.textContent = String(groupCount); badge.hidden = groupCount === 0; }
+  if (trigger) trigger.classList.toggle("is-active", groupCount > 0);
+  if (resultCount) resultCount.textContent = String(filtered.length);
+  if (footerCount) footerCount.textContent = `${filtered.length} 條航線`;
+  if (footerDest) footerDest.textContent = `${destinationCount} 個航點`;
+  if (empty) empty.classList.toggle("show", filtered.length === 0);
+}
+function toggleRouteFilter(group, value) {
+  const set = routeFilters[group];
+  if (!(set instanceof Set)) return;
+  if (value === "__ALL__") {
+    set.clear();
+  } else if (set.size === 0) {
+    set.add(value);
+  } else if (set.has(value)) {
+    set.delete(value);
+  } else {
+    set.add(value);
+  }
+  applyRouteFilters();
+}
+function resetRouteFilters(options = {}) {
+  routeFilters.origins.clear();
+  routeFilters.regions.clear();
+  routeFilters.statuses.clear();
+  DEFAULT_ROUTE_STATUSES.forEach(v => routeFilters.statuses.add(v));
+  if (!options.skipApply) applyRouteFilters();
+}
+function clearActiveAirlineLayers(id) {
+  Object.values(layers[id] || {}).forEach(route => {
+    if (map.hasLayer(route.hit)) map.removeLayer(route.hit);
+    if (map.hasLayer(route.marker)) map.removeLayer(route.marker);
+  });
+  Object.keys(hubMarkers).forEach(key => {
+    if (key.startsWith(`${id}_`) && map.hasLayer(hubMarkers[key])) map.removeLayer(hubMarkers[key]);
+  });
+}
+function applyRouteFilters() {
+  closeRoutePopup();
+  hideInfoCard();
+  clearSelectedAirport();
+  if (map) {
+    clearActiveAirlineLayers(activeAirline);
+    showAirline(activeAirline);
+  }
+  renderFilterPanel();
+  updateUI();
+  const search = document.getElementById("search-input");
+  if (search && search.value.trim()) onSearch(search.value);
+}
+function positionFilterPanel() {
+  const panel = document.getElementById("filter-panel");
+  const bar = document.getElementById("filter-bar");
+  if (!panel || !bar) return;
+  const mobile = window.matchMedia("(max-width: 860px), (pointer: coarse)").matches;
+  if (mobile) {
+    panel.style.removeProperty("top");
+  } else {
+    panel.style.top = `${Math.ceil(bar.getBoundingClientRect().bottom + 8)}px`;
+  }
+}
+function openFilterPanel() {
+  closeAirlinePicker();
+  renderFilterPanel();
+  positionFilterPanel();
+  filterPanelOpen = true;
+  document.getElementById("filter-panel").classList.add("open");
+  document.getElementById("filter-panel").setAttribute("aria-hidden", "false");
+  document.getElementById("filter-trigger").setAttribute("aria-expanded", "true");
+  document.getElementById("filter-backdrop").classList.add("open");
+  document.body.classList.add("filter-open");
+}
+function closeFilterPanel() {
+  filterPanelOpen = false;
+  const panel = document.getElementById("filter-panel");
+  const trigger = document.getElementById("filter-trigger");
+  const backdrop = document.getElementById("filter-backdrop");
+  if (panel) { panel.classList.remove("open"); panel.setAttribute("aria-hidden", "true"); }
+  if (trigger) trigger.setAttribute("aria-expanded", "false");
+  if (backdrop) backdrop.classList.remove("open");
+  document.body.classList.remove("filter-open");
+}
+function toggleFilterPanel() {
+  if (filterPanelOpen) closeFilterPanel(); else openFilterPanel();
+}
+window.addEventListener("resize", () => { if (filterPanelOpen) positionFilterPanel(); });
+window.addEventListener("keydown", e => { if (e.key === "Escape") { closeFilterPanel(); closeAirlinePicker(); } });
+
 // ── MAP INIT ──────────────────────────────────────────────────────────────────
 let activeAirline = initialAirline, activeLine = null;
 let mapWasDragged = false;
@@ -782,6 +1741,15 @@ const layers = Object.fromEntries(AIRLINE_IDS.map(id => [id, {}]));
 const hubMarkers = {};
 
 window.addEventListener("DOMContentLoaded", () => {
+  const header = document.getElementById("header");
+  if (header && "ResizeObserver" in window) {
+    headerResizeObserver = new ResizeObserver(() => {
+      if (headerResizeFrame) window.cancelAnimationFrame(headerResizeFrame);
+      headerResizeFrame = window.requestAnimationFrame(syncHeaderOffset);
+    });
+    headerResizeObserver.observe(header);
+  }
+
   // Star rating listeners (moved here to guarantee DOM is ready and isolate from map init)
   document.querySelectorAll('.fb-star').forEach(s => {
     s.addEventListener('mouseenter', () => { fbHighlight(+s.dataset.val); document.getElementById('fb-star-hint').textContent = FB_STAR_LABELS[+s.dataset.val]; });
@@ -794,7 +1762,9 @@ window.addEventListener("DOMContentLoaded", () => {
   map.on("click", () => {
     hideInfoCard();
     closeRoutePopup();
+    clearSelectedAirport();
     closeAirlinePicker();
+    closeFilterPanel();
   });
   map.on("dragstart", () => { mapWasDragged = true; });
   map.on("dragend", () => { mapWasDragged = false; });
@@ -844,6 +1814,10 @@ window.addEventListener("DOMContentLoaded", () => {
     .bindTooltip("TSA 松山", { permanent:true, direction:"right", offset:[7,0] });
   hubMarkers["CI_TPE"] = L.circleMarker(HUB_COORDS.TPE, { radius:8, color:"#003087", fillColor:"#003087", fillOpacity:1, weight:2, interactive:false })
     .bindTooltip("TPE 桃園", { permanent:true, direction:"right", offset:[9,0] });
+  hubMarkers["CI_TSA"] = L.circleMarker(HUB_COORDS.TSA, { radius:6, color:"#003087", fillColor:"#fff", fillOpacity:1, weight:2, interactive:false })
+    .bindTooltip("TSA 松山", { permanent:true, direction:"right", offset:[7,0] });
+  hubMarkers["CI_KHH"] = L.circleMarker(HUB_COORDS.KHH, { radius:6, color:"#003087", fillColor:"#fff", fillOpacity:1, weight:2, interactive:false })
+    .bindTooltip("KHH 高雄", { permanent:true, direction:"right", offset:[7,0] });
   hubMarkers["MU_PVG"] = L.circleMarker(HUB_COORDS.PVG, { radius:8, color:"#d10000", fillColor:"#d10000", fillOpacity:1, weight:2, interactive:false })
     .bindTooltip("PVG 浦東", { permanent:true, direction:"right", offset:[9,0] });
   hubMarkers["GK_NRT"] = L.circleMarker(HUB_COORDS.NRT, { radius:8, color:"#FF6600", fillColor:"#FF6600", fillOpacity:1, weight:2, interactive:false })
@@ -868,34 +1842,47 @@ window.addEventListener("DOMContentLoaded", () => {
     .bindTooltip("NGO 名古屋", { permanent:true, direction:"right", offset:[7,0] });
   hubMarkers["GK_FUK"] = L.circleMarker(HUB_COORDS.FUK, { radius:6, color:"#FF6600", fillColor:"#fff", fillOpacity:1, weight:2, interactive:false })
     .bindTooltip("FUK 福岡", { permanent:true, direction:"right", offset:[7,0] });
+  hubMarkers["CI_RMQ"] = L.circleMarker(HUB_COORDS.RMQ, { radius:6, color:"#003087", fillColor:"#fff", fillOpacity:1, weight:2, interactive:false })
+    .bindTooltip("RMQ 台中", { permanent:true, direction:"right", offset:[7,0] });
 
   if (!AIRLINES[activeAirline]) activeAirline = "JX";
+  resetRouteFilters({ skipApply: true });
+  renderFilterPanel();
   showAirline(activeAirline);
   updateUI();
   syncLayoutVars();
 });
 
 function showAirline(id) {
-  const al = AIRLINES[id];
+  const al = getFilteredRoutes(id);
+  const meta = AIRLINE_META_INFO[id] || {};
   const otherIDs = AIRLINE_IDS.filter(x => x !== id);
 
-  // Hide others
+  // Fade/scale previous airline out. Removal is delayed briefly so the transition is visible.
   otherIDs.forEach(otherID => {
-    Object.values(layers[otherID]).forEach(route => {
-      if (map.hasLayer(route.hit)) map.removeLayer(route.hit);
-      if (map.hasLayer(route.marker)) map.removeLayer(route.marker);
-    });
+    Object.values(layers[otherID]).forEach(route => hideRouteWithTransition(route, otherID));
     Object.keys(hubMarkers).forEach(k => {
-      if (k.startsWith(otherID)) { const m = hubMarkers[k]; if (map.hasLayer(m)) map.removeLayer(m); }
+      if (k.startsWith(`${otherID}_`)) hideHubWithTransition(hubMarkers[k], otherID);
     });
   });
 
-  // Show this
-  al.forEach(d => {
+  // Enter from near to far, so the network appears to expand from each route's hub.
+  const orderedRoutes = al
+    .map(d => {
+      const hub = HUB_COORDS[d.origin] || meta.hubCoords || HUB_COORDS.TPE;
+      return { d, distance: haversine(hub, d.coords) };
+    })
+    .sort((a, b) => a.distance - b.distance);
+
+  orderedRoutes.forEach(({ d }, index) => {
     const route = layers[id][routeKey(d)];
     if (!route) return; // 資料缺漏時安全跳過，避免整個畫面壞掉
+
     if (!map.hasLayer(route.marker)) route.marker.addTo(map);
     if (!map.hasLayer(route.hit)) route.hit.addTo(map);
+    const markerPath = route.marker.getElement && route.marker.getElement();
+    if (markerPath) markerPath.classList.remove("airline-marker-exit");
+    animateLayerEnter(route.marker, Math.min(index * (isTouchDevice ? 20 : 28), isTouchDevice ? 380 : 520));
 
     route.hit.off("mouseover").off("mouseout").off("click").off("touchstart").off("touchend").off("pointerdown").off("pointerup").off("tap");
     // Desktop: click handler
@@ -905,8 +1892,6 @@ function showAirline(id) {
       handleMarkerClick(d, id);
     });
     // iOS/touch: use touchend to avoid preventDefault blocking synthetic click.
-    // Only stopPropagation here — never preventDefault on touchstart/touchend,
-    // because that kills the browser's synthesised click on iOS Safari.
     let touchMoved = false;
     route.hit.on("touchstart", (e) => {
       touchMoved = false;
@@ -920,18 +1905,13 @@ function showAirline(id) {
     });
   });
 
-  const meta = AIRLINE_META_INFO[id] || {};
   const hubMarker = hubMarkers[`${id}_${meta.hub}`];
   if (hubMarker && !map.hasLayer(hubMarker)) hubMarker.addTo(map);
   if (id === "BR") {
     const hasTsaRoutes = al.some(d => d.origin === "TSA" || d.origin === "BOTH");
-    if (hasTsaRoutes && hubMarkers["BR_TSA"] && !map.hasLayer(hubMarkers["BR_TSA"])) {
-      hubMarkers["BR_TSA"].addTo(map);
-    }
+    if (hasTsaRoutes && hubMarkers["BR_TSA"] && !map.hasLayer(hubMarkers["BR_TSA"])) hubMarkers["BR_TSA"].addTo(map);
     const hasKhhRoutes = al.some(d => d.origin === "KHH");
-    if (hasKhhRoutes && hubMarkers["BR_KHH"] && !map.hasLayer(hubMarkers["BR_KHH"])) {
-      hubMarkers["BR_KHH"].addTo(map);
-    }
+    if (hasKhhRoutes && hubMarkers["BR_KHH"] && !map.hasLayer(hubMarkers["BR_KHH"])) hubMarkers["BR_KHH"].addTo(map);
   }
   if (id === "KE") {
     ["GMP","CJU","PUS"].forEach(o => {
@@ -947,7 +1927,23 @@ function showAirline(id) {
       if (hasRoutes && marker && !map.hasLayer(marker)) marker.addTo(map);
     });
   }
-  if (!isTouchDevice) closeRoutePopup();
+  if (id === "CI") {
+    ["TSA","KHH","RMQ"].forEach(o => {
+      const hasRoutes = al.some(d => d.origin === o);
+      const marker = hubMarkers[`CI_${o}`];
+      if (hasRoutes && marker && !map.hasLayer(marker)) marker.addTo(map);
+    });
+  }
+
+  Object.keys(hubMarkers).forEach(k => {
+    if (!k.startsWith(`${id}_`)) return;
+    const marker = hubMarkers[k];
+    if (map.hasLayer(marker)) {
+      const path = marker.getElement && marker.getElement();
+      if (path) path.classList.remove("airline-marker-exit");
+      animateLayerEnter(marker, 0);
+    }
+  });
 }
 
 function switchAirline(id) {
@@ -957,7 +1953,12 @@ function switchAirline(id) {
   });
 
   if (id === activeAirline) return;
+  closeRoutePopup();
+  hideInfoCard();
+  clearSelectedAirport();
+  closeFilterPanel();
   activeAirline = id;
+  resetRouteFilters({ skipApply: true });
   document.getElementById("search-input").value = "";
   document.getElementById("search-results").style.display = "none";
   showAirline(id);
@@ -965,14 +1966,14 @@ function switchAirline(id) {
 }
 
 function updateUI() {
-  const al = AIRLINES[activeAirline];
+  const al = getFilteredRoutes(activeAirline);
   const meta = AIRLINE_META_INFO[activeAirline] || {};
 
   // 膠囊按鈕 + 展開選單（桌面／手機通用）
   updateAirlinePicker();
 
-  // Stats — 已停飛（SUSPENDED）航線不計入目的地數量，避免誤導
-  const activeDestCount = al.filter(d => d.status !== "SUSPENDED").length;
+  // Stats — 已停飛（SUSPENDED）及尚未開航（SCHEDULED）航線不計入目的地數量，避免誤導
+  const activeDestCount = new Set(al.map(d => d.iata)).size;
   document.getElementById("stat-dest").textContent = activeDestCount;
   document.getElementById("stat-dest").style.color = meta.color || "#000";
 
@@ -992,6 +1993,8 @@ function updateUI() {
     fbSend.style.color = '#fff';
     fbSend.style.borderColor = meta.color || '#2d6bc4';
   }
+  document.documentElement.style.setProperty('--filter-accent', meta.color || '#5b9bd5');
+  updateFilterSummary();
 
 }
 
@@ -1006,11 +2009,11 @@ function updateAirlinePicker() {
   chipLabel.textContent = AIRLINE_SHORT_LABELS[activeAirline] || meta.fullName || activeAirline;
 
   const panel = document.getElementById("airline-picker-panel");
-  panel.innerHTML = AIRLINE_IDS.map(id => {
+  panel.innerHTML = AIRLINE_IDS.map((id, index) => {
     const a = AIRLINE_META_INFO[id] || {};
     const short = AIRLINE_SHORT_LABELS[id] || a.fullName || id;
     const active = activeAirline === id;
-    return `<button type="button" class="picker-option${active ? " active" : ""}" onclick="pickAirline('${id}')" role="option" aria-selected="${active}">
+    return `<button type="button" class="picker-option${active ? " active" : ""}" style="--option-index:${index}" onclick="pickAirline('${id}')" role="option" aria-selected="${active}">
       <span class="picker-option-dot" style="background:${a.color || "#999"}"></span>
       <span class="picker-option-label">${short}</span>
       ${active ? '<svg class="picker-option-check" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ""}
@@ -1018,16 +2021,23 @@ function updateAirlinePicker() {
   }).join("");
 }
 function openAirlinePicker() {
-  document.getElementById("airline-picker-panel").classList.add("open");
+  closeFilterPanel();
+  const panel = document.getElementById("airline-picker-panel");
+  panel.classList.add("open");
+  panel.setAttribute("aria-hidden", "false");
   document.getElementById("airline-chip").classList.add("open");
   document.getElementById("airline-chip").setAttribute("aria-expanded", "true");
-  syncLayoutVars();
+  syncHeaderOffset();
+  if (!headerResizeObserver) window.setTimeout(syncLayoutVars, 420);
 }
 function closeAirlinePicker() {
-  document.getElementById("airline-picker-panel").classList.remove("open");
+  const panel = document.getElementById("airline-picker-panel");
+  panel.classList.remove("open");
+  panel.setAttribute("aria-hidden", "true");
   document.getElementById("airline-chip").classList.remove("open");
   document.getElementById("airline-chip").setAttribute("aria-expanded", "false");
-  syncLayoutVars();
+  syncHeaderOffset();
+  if (!headerResizeObserver) window.setTimeout(syncLayoutVars, 420);
 }
 function toggleAirlinePicker() {
   const isOpen = document.getElementById("airline-picker-panel").classList.contains("open");
@@ -1039,6 +2049,7 @@ function pickAirline(id) {
 }
 
 function showCard(d, id) {
+  selectAirport(d, id);
   // 新增：追蹤點擊地圖標記（機場點閱率）
   gtag('event', 'click_airport_marker', {
     'airport_iata': d.iata,
@@ -1046,10 +2057,13 @@ function showCard(d, id) {
     'current_airline': id
   });
 
-  openRoutePopup(d, id);
+  renderInfoCard(d, id);
+  // 桌面保留 Kinetics popup；手機改由底部抽屜承載資訊，避免兩個面板互相遮擋。
+  openRoutePopup(d, id, false, !isTouchDevice);
 }
 
 function hideCard() {
+  clearSelectedAirport();
   if (isTouchDevice) {
     hideInfoCard();
     return;
@@ -1061,7 +2075,7 @@ function onSearch(val) {
   const input = document.getElementById("search-input");
   const resultsEl = document.getElementById("search-results");
   const meta = AIRLINE_META_INFO[activeAirline] || {};
-  const al = AIRLINES[activeAirline];
+  const al = getFilteredRoutes(activeAirline);
 
   if (!val.trim()) {
     resultsEl.style.display = "none";
@@ -1080,21 +2094,25 @@ function onSearch(val) {
 
   resultsEl.innerHTML = hits.map((d, i) => {
     const border = i < hits.length-1 ? "border-bottom:0.5px solid rgba(0,0,0,0.06)" : "";
-    const label = REGION_LABELS[d.region];
-    return `<div class="result-item" style="${border}" onclick="flyTo('${d.iata}')"
+    const label = filterRegionLabel(d.region);
+    // 同一目的地若有多個出發機場（例如 CI 的 OKA 同時有 TPE/KHH/RMQ 三條航線），
+    // 純用 iata 無法區分，搜尋結果要標示出發地，flyTo 也要一併帶入 origin 才能對應到正確航班。
+    const dupCount = al.filter(x => x.iata === d.iata).length;
+    const meta_label = dupCount > 1 ? (HUB_LABELS[d.origin] || d.origin) : (label || "");
+    return `<div class="result-item" style="${border}" onclick="flyTo('${d.iata}','${d.origin || ""}')"
       onmouseenter="this.style.background='${(meta.color||"#000")}0f'"
       onmouseleave="this.style.background='transparent'">
       <span class="result-iata" style="color:${meta.color || "#000"}">${d.iata}</span>
       <span class="result-city">${d.city}</span>
-      <span class="result-meta">${label || ""}</span>
+      <span class="result-meta">${meta_label}</span>
     </div>`;
   }).join("");
   resultsEl.style.display = "block";
 }
 
-function flyTo(iata) {
-  const al = AIRLINES[activeAirline];
-  const d = al.find(x => x.iata === iata);
+function flyTo(iata, origin) {
+  const al = getFilteredRoutes(activeAirline);
+  const d = origin ? al.find(x => x.iata === iata && x.origin === origin) : al.find(x => x.iata === iata);
   if (!d) return;
   map.flyTo(mapCoord(d.coords, d.iata), 6, { duration: 1.2 });
   document.getElementById("search-input").value = "";
