@@ -967,6 +967,49 @@
       #search-input, #info-card, #airline-chip { transition-duration: 0.01ms !important; }
     }
 
+  
+    /* Cross-airline destination search */
+    #search-results { max-height: min(58vh, 430px); overflow-y: auto; }
+    .global-result-item {
+      display: grid; grid-template-columns: 42px minmax(0,1fr) auto;
+      align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      transition: background .16s ease, transform .16s ease;
+    }
+    .global-result-item:last-child { border-bottom: 0; }
+    .global-result-item:hover { background: rgba(255,255,255,0.07); }
+    .global-airline-code {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 38px; height: 28px; border-radius: 8px;
+      border: 1px solid color-mix(in srgb, var(--airline-color) 55%, transparent);
+      background: color-mix(in srgb, var(--airline-color) 18%, transparent);
+      color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .06em;
+    }
+    .global-result-main { min-width: 0; }
+    .global-result-route {
+      display: flex; align-items: baseline; gap: 7px; min-width: 0;
+      color: #f7f9fc; font-size: 12px; font-weight: 650;
+    }
+    .global-result-city {
+      color: rgba(230,237,246,.62); font-size: 10px; font-weight: 500;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .global-result-airline {
+      margin-top: 3px; color: rgba(230,237,246,.68); font-size: 10px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .global-result-status {
+      padding: 4px 7px; border-radius: 999px; white-space: nowrap;
+      font-size: 9px; font-weight: 650; color: rgba(255,255,255,.86);
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1);
+    }
+    .global-search-empty { padding: 18px 14px; text-align: center; color: rgba(230,237,246,.62); font-size: 11px; }
+    @media (pointer: coarse) {
+      #search-results { max-height: 48vh; }
+      .global-result-item { grid-template-columns: 40px minmax(0,1fr); padding: 11px 12px; }
+      .global-result-status { grid-column: 2; justify-self: start; margin-top: -3px; }
+    }
+
   </style>
 </head>
 <body>
@@ -1020,7 +1063,7 @@
         <circle cx="5.5" cy="5.5" r="4" stroke="#86868b" stroke-width="1.3"/>
         <path d="M9 9L12.5 12.5" stroke="#86868b" stroke-width="1.3" stroke-linecap="round"/>
       </svg>
-      <input id="search-input" type="text" placeholder="搜尋城市或 IATA 代碼" oninput="onSearch(this.value)" />
+      <input id="search-input" type="text" placeholder="搜尋所有航空公司航點或 IATA" oninput="onSearch(this.value)" />
     </div>
     <div id="search-results"></div>
     <div id="filter-bar" aria-label="航線篩選摘要">
@@ -1814,6 +1857,8 @@ window.addEventListener("DOMContentLoaded", () => {
   // Hub markers
   hubMarkers["JX_TPE"] = L.circleMarker(HUB_COORDS.TPE, { radius:8, color:"#9c6c4c", fillColor:"#9c6c4c", fillOpacity:1, weight:2, interactive:false })
     .bindTooltip("TPE 桃園", { permanent:true, direction:"right", offset:[9,0] });
+  hubMarkers["JX_RMQ"] = L.circleMarker(HUB_COORDS.RMQ, { radius:6, color:"#9c6c4c", fillColor:"#fff", fillOpacity:1, weight:2, interactive:false })
+    .bindTooltip("RMQ 台中", { permanent:true, direction:"right", offset:[7,0] });
   hubMarkers["BR_TPE"] = L.circleMarker(HUB_COORDS.TPE, { radius:8, color:"#00a86b", fillColor:"#00a86b", fillOpacity:1, weight:2, interactive:false })
     .bindTooltip("TPE 桃園", { permanent:true, direction:"right", offset:[9,0] });
   hubMarkers["BR_TSA"] = L.circleMarker(HUB_COORDS.TSA, { radius:6, color:"#00a86b", fillColor:"#fff", fillOpacity:1, weight:2, interactive:false })
@@ -1919,6 +1964,10 @@ function showAirline(id) {
     const hasKhhRoutes = al.some(d => d.origin === "KHH");
     if (hasKhhRoutes && hubMarkers["BR_KHH"] && !map.hasLayer(hubMarkers["BR_KHH"])) hubMarkers["BR_KHH"].addTo(map);
   }
+  if (id === "JX") {
+    const hasRmqRoutes = al.some(d => d.origin === "RMQ");
+    if (hasRmqRoutes && hubMarkers["JX_RMQ"] && !map.hasLayer(hubMarkers["JX_RMQ"])) hubMarkers["JX_RMQ"].addTo(map);
+  }
   if (id === "KE") {
     ["GMP","CJU","PUS"].forEach(o => {
       const hasRoutes = al.some(d => d.origin === o);
@@ -1965,10 +2014,12 @@ function switchAirline(id) {
   closeFilterPanel();
   activeAirline = id;
   resetRouteFilters({ skipApply: true });
-  document.getElementById("search-input").value = "";
-  document.getElementById("search-results").style.display = "none";
   showAirline(id);
   updateUI();
+
+  // 航點搜尋固定涵蓋所有航空公司；切換地圖航司時保留查詢與結果。
+  const search = document.getElementById("search-input");
+  if (search && search.value.trim()) onSearch(search.value);
 }
 
 function updateUI() {
@@ -2077,53 +2128,97 @@ function hideCard() {
   closeRoutePopup();
 }
 
+function globalSearchStatusLabel(d) {
+  const key = routeStatusKey(d);
+  const option = ROUTE_STATUS_OPTIONS.find(x => x.value === key);
+  return option ? option.label : "正常營運";
+}
+
+function getGlobalSearchHits(value) {
+  const q = value.trim().toLowerCase();
+  if (!q) return [];
+  const rows = [];
+  // 搜尋範圍刻意不使用 activeAirline 或 routeFilters，確保永遠查詢全部航司。
+  AIRLINE_IDS.forEach(id => {
+    (AIRLINES[id] || []).forEach(d => {
+      const iata = String(d.iata || "").toLowerCase();
+      const city = String(d.city || "").toLowerCase();
+      const airportName = String(d.airportName || "").toLowerCase();
+      if (iata.includes(q) || city.includes(q) || airportName.includes(q)) {
+        rows.push({ id, d, exact: iata === q ? 0 : 1 });
+      }
+    });
+  });
+  return rows.sort((a, b) =>
+    a.exact - b.exact ||
+    a.d.iata.localeCompare(b.d.iata) ||
+    AIRLINE_IDS.indexOf(a.id) - AIRLINE_IDS.indexOf(b.id) ||
+    String(a.d.origin || "").localeCompare(String(b.d.origin || ""))
+  );
+}
+
 function onSearch(val) {
   const input = document.getElementById("search-input");
   const resultsEl = document.getElementById("search-results");
-  const meta = AIRLINE_META_INFO[activeAirline] || {};
-  const al = getFilteredRoutes(activeAirline);
+  const q = val.trim();
 
-  if (!val.trim()) {
+  if (!q) {
     resultsEl.style.display = "none";
-    input.style.borderColor = "rgba(0,0,0,0.15)";
+    input.style.borderColor = "rgba(255,255,255,0.15)";
     return;
   }
 
-  input.style.borderColor = (meta.color || "#000") + "66";
-  const q = val.toLowerCase();
-  const hits = al.filter(d => d.iata.toLowerCase().includes(q) || d.city.includes(val)).slice(0, 6);
-
+  input.style.borderColor = "rgba(255,255,255,0.34)";
+  const hits = getGlobalSearchHits(q);
   if (hits.length === 0) {
-    resultsEl.style.display = "none";
+    resultsEl.innerHTML = `<div class="global-search-empty">找不到符合「${q.replace(/[<>]/g, "")}」的航線</div>`;
+    resultsEl.style.display = "block";
     return;
   }
 
-  resultsEl.innerHTML = hits.map((d, i) => {
-    const border = i < hits.length-1 ? "border-bottom:0.5px solid rgba(0,0,0,0.06)" : "";
-    const label = filterRegionLabel(d.region);
-    // 同一目的地若有多個出發機場（例如 CI 的 OKA 同時有 TPE/KHH/RMQ 三條航線），
-    // 純用 iata 無法區分，搜尋結果要標示出發地，flyTo 也要一併帶入 origin 才能對應到正確航班。
-    const dupCount = al.filter(x => x.iata === d.iata).length;
-    const meta_label = dupCount > 1 ? (HUB_LABELS[d.origin] || d.origin) : (label || "");
-    return `<div class="result-item" style="${border}" onclick="flyTo('${d.iata}','${d.origin || ""}')"
-      onmouseenter="this.style.background='${(meta.color||"#000")}0f'"
-      onmouseleave="this.style.background='transparent'">
-      <span class="result-iata" style="color:${meta.color || "#000"}">${d.iata}</span>
-      <span class="result-city">${d.city}</span>
-      <span class="result-meta">${meta_label}</span>
+  resultsEl.innerHTML = hits.map(({ id, d }) => {
+    const meta = AIRLINE_META_INFO[id] || {};
+    const airlineName = meta.fullName || AIRLINE_SHORT_LABELS[id] || id;
+    const originLabel = HUB_LABELS[d.origin] || d.origin || "—";
+    const status = globalSearchStatusLabel(d);
+    return `<div class="global-result-item" style="--airline-color:${meta.color || "#6ea8ff"}"
+      onclick="selectGlobalRoute('${id}','${d.iata}','${d.origin || ""}')">
+      <span class="global-airline-code">${id}</span>
+      <span class="global-result-main">
+        <span class="global-result-route"><span>${originLabel.split(" ")[0]}</span><span>→</span><span>${d.iata}</span><span class="global-result-city">${d.city || ""}</span></span>
+        <span class="global-result-airline">${airlineName}</span>
+      </span>
+      <span class="global-result-status">${status}</span>
     </div>`;
   }).join("");
   resultsEl.style.display = "block";
 }
 
-function flyTo(iata, origin) {
-  const al = getFilteredRoutes(activeAirline);
-  const d = origin ? al.find(x => x.iata === iata && x.origin === origin) : al.find(x => x.iata === iata);
+function selectGlobalRoute(id, iata, origin) {
+  const d = (AIRLINES[id] || []).find(x => x.iata === iata && String(x.origin || "") === String(origin || ""));
   if (!d) return;
-  map.flyTo(mapCoord(d.coords, d.iata), 6, { duration: 1.2 });
+
+  closeRoutePopup();
+  hideInfoCard();
+  clearSelectedAirport();
+  closeFilterPanel();
+  routeFilters.origins.clear();
+  routeFilters.regions.clear();
+  routeFilters.statuses = new Set(DEFAULT_ROUTE_STATUSES);
+  routeFilters.statuses.add(routeStatusKey(d));
+
+  if (activeAirline !== id) activeAirline = id;
+  showAirline(id);
+  updateUI();
   document.getElementById("search-input").value = "";
   document.getElementById("search-results").style.display = "none";
-  map.once("moveend", () => showCard(d, activeAirline));
+
+  map.flyTo(mapCoord(d.coords, d.iata), 6, { duration: 1.2 });
+  map.once("moveend", () => showCard(d, id));
+}
+
+function flyTo(iata, origin) {
+  selectGlobalRoute(activeAirline, iata, origin);
 }
 
 // Feedback widget handlers
