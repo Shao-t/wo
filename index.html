@@ -14,7 +14,7 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="airline-data.js"></script>
+  <script src="airline-data.js?v=20260806-tk"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -1010,6 +1010,200 @@
       .global-result-status { grid-column: 2; justify-self: start; margin-top: -3px; }
     }
 
+    /* Achievement toast */
+    #achievement-toast {
+      position: fixed; z-index: 1900; left: 50%; bottom: 28px;
+      width: min(390px, calc(100vw - 28px)); min-height: 92px;
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 42px 14px 14px; border-radius: 20px;
+      color: #f5f7fb; background: rgba(10,18,30,.94);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 20px 55px rgba(0,0,0,.38);
+      backdrop-filter: blur(24px) saturate(150%);
+      -webkit-backdrop-filter: blur(24px) saturate(150%);
+      opacity: 0; pointer-events: none;
+      transform: translate(-50%, 24px) scale(.96);
+      transition: opacity .25s ease, transform .35s cubic-bezier(.2,.9,.25,1.2);
+    }
+    #achievement-toast.show { opacity: 1; pointer-events: auto; transform: translate(-50%, 0) scale(1); }
+    #achievement-toast.unlocked { border-color: rgba(240,194,82,.58); box-shadow: 0 20px 60px rgba(0,0,0,.42), 0 0 34px rgba(240,194,82,.13); }
+    .achievement-seal {
+      position: relative; flex: 0 0 62px; width: 62px; height: 62px;
+      display: grid; place-items: center; border-radius: 50%;
+      color: #fff; background: radial-gradient(circle at 35% 30%, #ff7070, #b61225 72%);
+      border: 3px double rgba(255,232,176,.9);
+      box-shadow: inset 0 0 0 3px rgba(255,255,255,.12), 0 6px 18px rgba(0,0,0,.28);
+      font-size: 18px; font-weight: 850; letter-spacing: .08em;
+    }
+    .achievement-seal img {
+      width: 76px; height: 76px; display: none; object-fit: contain;
+    }
+    .achievement-seal.has-badge {
+      border: 0; border-radius: 0; background: transparent; box-shadow: none;
+    }
+    .achievement-seal.has-badge img { display: block; }
+    .achievement-seal.has-badge .achievement-badge-fallback { display: none; }
+    .achievement-badge-fallback { line-height: 1; }
+    .achievement-seal small {
+      position: absolute; right: -3px; bottom: -2px; min-width: 22px; height: 22px;
+      display: grid; place-items: center; padding: 0 4px; border-radius: 999px;
+      color: #271d08; background: #f0c252; border: 2px solid #152033;
+      font-size: 10px; letter-spacing: 0;
+    }
+    .achievement-copy { min-width: 0; }
+    .achievement-kicker { color: #f0c252; font-size: 9px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    #achievement-title { display: block; margin-top: 4px; font-size: 16px; line-height: 1.2; }
+    #achievement-detail { margin: 5px 0 0; color: rgba(235,241,249,.68); font-size: 10px; line-height: 1.45; }
+    .achievement-close {
+      position: absolute; top: 9px; right: 10px; width: 28px; height: 28px;
+      border: 0; border-radius: 50%; color: rgba(255,255,255,.6); background: transparent;
+      cursor: pointer; font-size: 18px; line-height: 1;
+    }
+    .achievement-close:hover { color: #fff; background: rgba(255,255,255,.1); }
+    #achievement-confetti {
+      position: fixed; inset: 0; z-index: 2050; overflow: hidden;
+      pointer-events: none;
+    }
+    .achievement-confetti-piece {
+      position: absolute; top: -10vh; left: 0;
+      width: var(--size); height: 5px;
+      border-radius: 2px; background: var(--color);
+      transform: translate3d(var(--x), -12vh, 0) rotate(0deg);
+      animation: achievement-confetti-fall var(--duration) cubic-bezier(.16,.7,.35,1) var(--delay) forwards;
+    }
+    @keyframes achievement-confetti-fall {
+      to { transform: translate3d(calc(var(--x) + var(--drift)), 112vh, 0) rotate(var(--spin)); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #achievement-confetti { display: none; }
+    }
+    @media (max-width: 600px) {
+      #achievement-toast { bottom: calc(18px + env(safe-area-inset-bottom)); min-height: 84px; border-radius: 18px; }
+      .achievement-seal { flex-basis: 56px; width: 56px; height: 56px; font-size: 16px; }
+      .achievement-seal img { width: 68px; height: 68px; }
+    }
+
+    /* Achievement gallery */
+    .achievement-gallery-button {
+      min-height: 38px; padding: 0 13px; border-radius: 13px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      color: #f6f8fb; background: rgba(8,16,28,.82);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 8px 24px rgba(3,8,18,.18);
+      cursor: pointer; font-size: 12px; font-weight: 700; white-space: nowrap;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .achievement-gallery-button:hover {
+      transform: translateY(-1px); background: rgba(18,30,48,.96);
+      border-color: rgba(240,194,82,.42);
+    }
+    .achievement-gallery-button svg { flex: 0 0 auto; }
+    #achievement-gallery-button-count {
+      min-width: 28px; padding: 2px 6px; border-radius: 999px;
+      color: #211a09; background: #f0c252; font-size: 9px; text-align: center;
+    }
+    #achievement-gallery-overlay {
+      position: fixed; inset: 0; z-index: 2100; display: none;
+      align-items: center; justify-content: center; padding: 24px;
+      background: rgba(2,7,16,.68); backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    #achievement-gallery-overlay.show { display: flex; }
+    .achievement-gallery-panel {
+      width: min(940px, 96vw); max-height: min(820px, 90vh); overflow: hidden;
+      display: flex; flex-direction: column;
+      color: #f4f7fb; background: rgba(8,16,28,.96);
+      border: 1px solid rgba(255,255,255,.14); border-radius: 24px;
+      box-shadow: 0 28px 90px rgba(0,0,0,.5);
+    }
+    .achievement-gallery-header {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 18px;
+      padding: 22px 24px 18px; border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    .achievement-gallery-eyebrow {
+      color: #f0c252; font-size: 9px; font-weight: 800;
+      letter-spacing: .16em; text-transform: uppercase;
+    }
+    .achievement-gallery-header h2 { margin: 5px 0 4px; font-size: 22px; }
+    #achievement-gallery-summary { color: rgba(235,241,249,.68); font-size: 11px; }
+    #achievement-gallery-summary strong { color: #fff; font-size: 13px; }
+    .achievement-gallery-close {
+      width: 34px; height: 34px; flex: 0 0 34px; border: 0; border-radius: 50%;
+      color: rgba(255,255,255,.7); background: rgba(255,255,255,.08);
+      cursor: pointer; font-size: 20px; line-height: 1;
+    }
+    .achievement-gallery-close:hover { color: #fff; background: rgba(255,255,255,.14); }
+    #achievement-gallery-grid {
+      overflow-y: auto; padding: 20px 24px 26px;
+      display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px;
+    }
+    .achievement-gallery-card {
+      min-width: 0; padding: 16px; border-radius: 18px;
+      background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.1);
+    }
+    .achievement-gallery-card.unlocked {
+      background: linear-gradient(145deg, rgba(240,194,82,.1), rgba(255,255,255,.055));
+      border-color: rgba(240,194,82,.27);
+    }
+    .achievement-gallery-card.secret.locked {
+      background: radial-gradient(circle at 50% 20%, rgba(185,148,255,.1), rgba(255,255,255,.035) 64%);
+      border-color: rgba(185,148,255,.24); border-style: dashed;
+    }
+    .achievement-gallery-badge {
+      height: 116px; display: grid; place-items: center; margin-bottom: 10px;
+    }
+    .achievement-gallery-badge img { width: 112px; height: 112px; object-fit: contain; }
+    .achievement-gallery-card.locked .achievement-gallery-badge img {
+      filter: grayscale(1); opacity: .3;
+    }
+    .achievement-gallery-image-fallback {
+      display: none; width: 82px; height: 82px; place-items: center; border-radius: 50%;
+      color: rgba(255,255,255,.76); border: 1px solid rgba(255,255,255,.2);
+      font-size: 18px; font-weight: 850;
+    }
+    .achievement-gallery-card.secret.locked .achievement-gallery-image-fallback {
+      display: grid; color: rgba(221,205,255,.76); border-color: rgba(185,148,255,.32);
+      font-size: 28px;
+    }
+    .achievement-gallery-status {
+      color: #f0c252; font-size: 9px; font-weight: 800; letter-spacing: .1em;
+    }
+    .achievement-gallery-card.locked .achievement-gallery-status { color: rgba(235,241,249,.42); }
+    .achievement-gallery-card h3 { margin: 5px 0 6px; font-size: 15px; }
+    .achievement-gallery-description {
+      min-height: 34px; margin: 0; color: rgba(235,241,249,.62); font-size: 10px; line-height: 1.55;
+    }
+    .achievement-gallery-progress-row {
+      display: flex; justify-content: space-between; gap: 8px; margin-top: 13px;
+      color: rgba(235,241,249,.72); font-size: 9px;
+    }
+    .achievement-gallery-progress {
+      height: 5px; margin-top: 7px; overflow: hidden; border-radius: 999px;
+      background: rgba(255,255,255,.09);
+    }
+    .achievement-gallery-progress span {
+      display: block; height: 100%; border-radius: inherit;
+      background: linear-gradient(90deg, #d7a936, #f0c252);
+    }
+    .achievement-gallery-date { margin-top: 9px; color: rgba(235,241,249,.42); font-size: 9px; }
+    @media (max-width: 860px), (pointer: coarse) {
+      .achievement-gallery-button { width: 44px; height: 44px; min-height: 44px; padding: 0; }
+      .achievement-gallery-button-label, #achievement-gallery-button-count { display: none; }
+      #achievement-gallery-overlay { padding: 10px; align-items: flex-end; }
+      .achievement-gallery-panel { width: 100%; max-height: 88vh; border-radius: 22px 22px 16px 16px; }
+      .achievement-gallery-header { padding: 18px 18px 14px; }
+      #achievement-gallery-grid { grid-template-columns: repeat(2, minmax(0,1fr)); padding: 14px 14px 22px; gap: 10px; }
+      .achievement-gallery-card { padding: 12px; }
+      .achievement-gallery-badge { height: 94px; }
+      .achievement-gallery-badge img { width: 92px; height: 92px; }
+    }
+    @media (max-width: 420px) {
+      #achievement-gallery-grid { grid-template-columns: 1fr; }
+      .achievement-gallery-card { display: grid; grid-template-columns: 94px 1fr; column-gap: 12px; }
+      .achievement-gallery-badge { grid-row: 1 / span 6; height: 100px; margin: 0; }
+      .achievement-gallery-description { min-height: 0; }
+    }
+
   </style>
 </head>
 <body>
@@ -1044,6 +1238,15 @@
 
     </div>
     <div id="header-right">
+      <button class="achievement-gallery-button" id="achievement-gallery-button" type="button"
+        onclick="openAchievementGallery()" aria-haspopup="dialog" aria-controls="achievement-gallery-overlay" aria-expanded="false">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M5 2h6v3.2c0 2-1.34 3.66-3 3.66S5 7.2 5 5.2V2Z" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M5 3.2H2.8c0 2.3.9 3.65 2.85 4.1M11 3.2h2.2c0 2.3-.9 3.65-2.85 4.1M8 8.9v2.25M5.5 14h5M6.1 11.15h3.8V14H6.1v-2.85Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="achievement-gallery-button-label">成就</span>
+        <span id="achievement-gallery-button-count">0/9</span>
+      </button>
       <button class="fb-fab" id="fb-fab" title="問題回報 / 建議" aria-label="問題回報 / 建議" onclick="fbOpen()">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M8 1.5C4.41 1.5 1.5 4.08 1.5 7.25c0 1.52.65 2.9 1.7 3.9L2.5 14l2.97-1.1C6.35 13.28 7.16 13.5 8 13.5c3.59 0 6.5-2.58 6.5-5.75S11.59 1.5 8 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
@@ -1136,6 +1339,34 @@
       </div>
       <div class="fb-msg" id="fb-msg"></div>
     </div>
+  </div>
+
+  <div id="achievement-gallery-overlay" aria-hidden="true" onclick="handleAchievementGalleryBackdrop(event)">
+    <section class="achievement-gallery-panel" role="dialog" aria-modal="true" aria-labelledby="achievement-gallery-title">
+      <header class="achievement-gallery-header">
+        <div>
+          <div class="achievement-gallery-eyebrow">Achievement collection</div>
+          <h2 id="achievement-gallery-title">成就圖鑑</h2>
+          <div id="achievement-gallery-summary"></div>
+        </div>
+        <button class="achievement-gallery-close" type="button" onclick="closeAchievementGallery()" aria-label="關閉成就圖鑑">×</button>
+      </header>
+      <div id="achievement-gallery-grid"></div>
+    </section>
+  </div>
+
+  <div id="achievement-toast" role="status" aria-live="polite" aria-hidden="true">
+    <div class="achievement-seal" id="achievement-seal" aria-hidden="true">
+      <img id="achievement-badge" alt="">
+      <span class="achievement-badge-fallback" id="achievement-badge-fallback">JP</span>
+      <small id="achievement-count">0/3</small>
+    </div>
+    <div class="achievement-copy">
+      <div class="achievement-kicker" id="achievement-kicker">Challenge progress</div>
+      <strong id="achievement-title">日本初心者</strong>
+      <p id="achievement-detail"></p>
+    </div>
+    <button class="achievement-close" type="button" onclick="closeAchievementToast()" aria-label="關閉成就提示">×</button>
   </div>
 </div>
 
@@ -1540,9 +1771,19 @@ const initialAirline = (() => {
 })();
 
 const HUB_COORDS = {
+  IST: [41.2753, 28.7519],
   TPE: [25.0797, 121.2342],
   TSA: [25.0694, 121.5515],
   PVG: [31.1443, 121.8083],
+  SHA: [31.1979, 121.3363],
+  NKG: [31.7420, 118.8622],
+  NGB: [29.8267, 121.4619],
+  WUH: [30.7838, 114.2081],
+  TAO: [36.3614, 120.3747],
+  TFU: [30.3128, 104.4417],
+  KMG: [25.1019, 102.9292],
+  XIY: [34.4471, 108.7516],
+  PKX: [39.5098, 116.4105],
   NRT: [35.7720, 140.3929],
   AUH: [24.4330, 54.6511],
   KIX: [34.4347, 135.2440],
@@ -1554,11 +1795,25 @@ const HUB_COORDS = {
   ICN: [37.4602, 126.4407],
   PUS: [35.1795, 128.9382],
   RMQ: [24.2647, 120.6222],
+  TNN: [22.9504, 120.2060],
+  XMN: [24.5440, 118.1277],
+  FOC: [25.9352, 119.6630],
+  HGH: [30.2295, 120.4344],
 };
 const HUB_LABELS = {
+  IST: "IST 伊斯坦堡",
   TPE: "TPE 桃園",
   TSA: "TSA 松山",
   PVG: "PVG 浦東",
+  SHA: "SHA 虹橋",
+  NKG: "NKG 南京",
+  NGB: "NGB 寧波",
+  WUH: "WUH 武漢",
+  TAO: "TAO 青島",
+  TFU: "TFU 成都天府",
+  KMG: "KMG 昆明",
+  XIY: "XIY 西安",
+  PKX: "PKX 北京大興",
   NRT: "NRT 成田",
   AUH: "AUH 阿布達比",
   KIX: "KIX 大阪關西",
@@ -1570,14 +1825,18 @@ const HUB_LABELS = {
   ICN: "ICN 首爾仁川",
   PUS: "PUS 釜山",
   RMQ: "RMQ 台中",
+  TNN: "TNN 台南",
+  XMN: "XMN 廈門",
+  FOC: "FOC 福州",
+  HGH: "HGH 杭州",
   BOTH: "松山／桃園雙樞紐",
 };
 // 所有航空公司代碼統一在此維護，新增/移除航空公司只需改這裡
-const AIRLINE_IDS = ["JX","BR","CI","MU","GK","EY","IT","KE"];
+const AIRLINE_IDS = ["JX","BR","CI","MF","MU","TK","GK","EY","IT","KE"];
 // 選單顯示用的英文簡稱（避免中文全名在窄版選單中換行）
 const AIRLINE_SHORT_LABELS = {
   JX: "STARLUX", BR: "EVA AIR", CI: "CHINA AIR", MU: "CHINA EAST",
-  GK: "JETSTAR JP", EY: "ETIHAD", IT: "TIGERAIR", KE: "KOREAN AIR",
+  MF: "XIAMENAIR", TK: "TURKISH", GK: "JETSTAR JP", EY: "ETIHAD", IT: "TIGERAIR", KE: "KOREAN AIR",
 };
 const AIRLINE_META_INFO = window.AIRLINE_META || {};
 const AIRLINES = Object.fromEntries(AIRLINE_IDS.map(id => [id, AIRLINE_DATA[id] || []]));
@@ -1871,12 +2130,26 @@ window.addEventListener("DOMContentLoaded", () => {
     .bindTooltip("KHH 高雄", { permanent:true, direction:"right", offset:[7,0] });
   hubMarkers["MU_PVG"] = L.circleMarker(HUB_COORDS.PVG, { radius:8, color:"#d10000", fillColor:"#d10000", fillOpacity:1, weight:2, interactive:false })
     .bindTooltip("PVG 浦東", { permanent:true, direction:"right", offset:[9,0] });
+  ["SHA","NKG","NGB","WUH","TAO","TFU","KMG","XIY","PKX"].forEach(origin => {
+    hubMarkers[`MU_${origin}`] = L.circleMarker(HUB_COORDS[origin], { radius:6, color:"#d10000", fillColor:"#fff", fillOpacity:1, weight:2, interactive:false })
+      .bindTooltip(HUB_LABELS[origin], { permanent:true, direction:"right", offset:[7,0] });
+  });
+  hubMarkers["MF_XMN"] = L.circleMarker(HUB_COORDS.XMN, { radius:8, color:"#0072BC", fillColor:"#0072BC", fillOpacity:1, weight:2, interactive:false })
+    .bindTooltip("XMN 廈門", { permanent:true, direction:"right", offset:[9,0] });
+  hubMarkers["MF_FOC"] = L.circleMarker(HUB_COORDS.FOC, { radius:6, color:"#0072BC", fillColor:"#fff", fillOpacity:1, weight:2, interactive:false })
+    .bindTooltip("FOC 福州", { permanent:true, direction:"right", offset:[7,0] });
+  hubMarkers["MF_HGH"] = L.circleMarker(HUB_COORDS.HGH, { radius:6, color:"#0072BC", fillColor:"#fff", fillOpacity:1, weight:2, interactive:false })
+    .bindTooltip("HGH 杭州", { permanent:true, direction:"right", offset:[7,0] });
   hubMarkers["GK_NRT"] = L.circleMarker(HUB_COORDS.NRT, { radius:8, color:"#FF6600", fillColor:"#FF6600", fillOpacity:1, weight:2, interactive:false })
     .bindTooltip("NRT 成田", { permanent:true, direction:"right", offset:[9,0] });
   hubMarkers["EY_AUH"] = L.circleMarker(HUB_COORDS.AUH, { radius:8, color:"#BD8B13", fillColor:"#BD8B13", fillOpacity:1, weight:2, interactive:false })
     .bindTooltip("AUH 阿布達比", { permanent:true, direction:"right", offset:[9,0] });
   hubMarkers["IT_TPE"] = L.circleMarker(HUB_COORDS.TPE, { radius:8, color:"#F6A800", fillColor:"#F6A800", fillOpacity:1, weight:2, interactive:false })
     .bindTooltip("TPE 桃園", { permanent:true, direction:"right", offset:[9,0] });
+  hubMarkers["TK_IST"] = L.circleMarker(HUB_COORDS.IST, { radius:8, color:"#E30A17", fillColor:"#E30A17", fillOpacity:1, weight:2, interactive:false })
+    .bindTooltip("IST 伊斯坦堡", { permanent:true, direction:"right", offset:[9,0] });
+  hubMarkers["IT_TNN"] = L.circleMarker(HUB_COORDS.TNN, { radius:6, color:"#F6A800", fillColor:"#fff", fillOpacity:1, weight:2, interactive:false })
+    .bindTooltip("TNN 台南", { permanent:true, direction:"right", offset:[7,0] });
   hubMarkers["BR_KHH"] = L.circleMarker(HUB_COORDS.KHH, { radius:6, color:"#00a86b", fillColor:"#fff", fillOpacity:1, weight:2, interactive:false })
     .bindTooltip("KHH 高雄", { permanent:true, direction:"right", offset:[7,0] });
   hubMarkers["KE_ICN"] = L.circleMarker(HUB_COORDS.ICN, { radius:8, color:"#5B9BD5", fillColor:"#5B9BD5", fillOpacity:1, weight:2, interactive:false })
@@ -1902,6 +2175,7 @@ window.addEventListener("DOMContentLoaded", () => {
   showAirline(activeAirline);
   updateUI();
   syncLayoutVars();
+  refreshAchievementGalleryButton();
 });
 
 function showAirline(id) {
@@ -1967,6 +2241,24 @@ function showAirline(id) {
   if (id === "JX") {
     const hasRmqRoutes = al.some(d => d.origin === "RMQ");
     if (hasRmqRoutes && hubMarkers["JX_RMQ"] && !map.hasLayer(hubMarkers["JX_RMQ"])) hubMarkers["JX_RMQ"].addTo(map);
+  }
+  if (id === "IT") {
+    const hasTnnRoutes = al.some(d => d.origin === "TNN");
+    if (hasTnnRoutes && hubMarkers["IT_TNN"] && !map.hasLayer(hubMarkers["IT_TNN"])) hubMarkers["IT_TNN"].addTo(map);
+  }
+  if (id === "MF") {
+    ["FOC","HGH"].forEach(o => {
+      const hasRoutes = al.some(d => d.origin === o);
+      const marker = hubMarkers[`MF_${o}`];
+      if (hasRoutes && marker && !map.hasLayer(marker)) marker.addTo(map);
+    });
+  }
+  if (id === "MU") {
+    ["SHA","NKG","NGB","WUH","TAO","TFU","KMG","XIY","PKX"].forEach(o => {
+      const hasRoutes = al.some(d => d.origin === o);
+      const marker = hubMarkers[`MU_${o}`];
+      if (hasRoutes && marker && !map.hasLayer(marker)) marker.addTo(map);
+    });
   }
   if (id === "KE") {
     ["GMP","CJU","PUS"].forEach(o => {
@@ -2105,6 +2397,424 @@ function pickAirline(id) {
   closeAirlinePicker();
 }
 
+// ── Achievements ─────────────────────────────────────────────────────────────
+// 正式徽章位於 assets/badges；圖檔載入失敗時自動顯示文字占位徽章。
+const ACHIEVEMENT_STORAGE_KEY = "airline-map:achievements";
+const ASIA_ACHIEVEMENT_REGIONS = new Set([
+  "TAIWAN", "JAPAN", "NORTHEAST_ASIA", "CHINA", "HONGKONG_MACAU",
+  "PHILIPPINES", "SOUTHEAST_ASIA", "SOUTH_ASIA", "CENTRAL_ASIA", "MIDDLE_EAST"
+]);
+const ACHIEVEMENT_DEFINITIONS = [
+  {
+    id: "japanBeginner", title: "日本初心者", code: "JP", type: "regionAirports",
+    region: "JAPAN", target: 3, badge: "assets/badges/japan-beginner.png"
+  },
+  {
+    id: "japanTraveler", title: "日本旅人", code: "JP+", type: "regionAirports",
+    region: "JAPAN", target: 10, badge: "assets/badges/japan-traveler.png"
+  },
+  {
+    id: "japanMaster", title: "日本達人", code: "JP★", type: "regionAirports",
+    region: "JAPAN", target: 20, badge: "assets/badges/japan-master.png"
+  },
+  {
+    id: "airlineCollector", title: "航司收藏家", code: "AL", type: "airlines",
+    target: 5, badge: "assets/badges/airline-collector.png"
+  },
+  {
+    id: "asiaExplorer", title: "亞洲探險家", code: "AS", type: "asiaExplorer",
+    airportTarget: 10, countryTarget: 4, badge: "assets/badges/asia-explorer.png"
+  },
+  {
+    id: "rareDestination", title: "冷門航點發掘者", code: "RARE", type: "rareAirports",
+    target: 5, maxAirlines: 2, badge: "assets/badges/rare-destination.png"
+  },
+  {
+    id: "snowTrio", title: "雪國三重奏", code: "SNOW", type: "requiredAirports",
+    airports: ["CTS", "AOJ", "AXT"], difficulty: "高級", hidden: true,
+    hiddenHint: "當三座北國機場被雪花串連……",
+    badge: "assets/badges/snow-trio.png"
+  },
+  {
+    id: "silkRoadTraveler", title: "絲路時空旅人", code: "SILK", type: "requiredAirports",
+    airports: ["XIY", "TAS", "IST"], difficulty: "高級", hidden: true,
+    hiddenHint: "沿著古老商旅的足跡，從東方走向歐亞交界……",
+    badge: "assets/badges/silk-road-traveler.png"
+  },
+  {
+    id: "europeRomance", title: "歐洲浪漫三部曲", code: "EURO", type: "requiredAirports",
+    airports: ["CDG", "VIE", "FCO"], difficulty: "高級", hidden: true,
+    hiddenHint: "收藏藝術、音樂與古文明的三座名城……",
+    badge: "assets/badges/europe-romance.png"
+  }
+];
+let achievementToastTimer = null;
+let achievementToastQueue = [];
+let achievementToastVisible = false;
+
+function defaultAchievementState() {
+  return {
+    version: 2,
+    visitedAirports: [],
+    visitedAirlines: [],
+    achievements: Object.fromEntries(ACHIEVEMENT_DEFINITIONS.map(item => [
+      item.id, { unlocked: false, unlockedAt: null }
+    ]))
+  };
+}
+
+function normalizeAchievementState(saved) {
+  const state = defaultAchievementState();
+  if (!saved || typeof saved !== "object") return state;
+
+  // v1 只儲存日本初心者的 airports；升級後沿用既有探索紀錄。
+  const legacyAirports = Array.isArray(saved.japanBeginner?.airports)
+    ? saved.japanBeginner.airports : [];
+  const savedAirports = Array.isArray(saved.visitedAirports) ? saved.visitedAirports : [];
+  state.visitedAirports = [...new Set([...legacyAirports, ...savedAirports]
+    .map(value => String(value).toUpperCase()))];
+  state.visitedAirlines = [...new Set((Array.isArray(saved.visitedAirlines)
+    ? saved.visitedAirlines : []).map(value => String(value).toUpperCase()))];
+
+  ACHIEVEMENT_DEFINITIONS.forEach(item => {
+    const record = saved.achievements?.[item.id];
+    if (record) {
+      state.achievements[item.id] = {
+        unlocked: Boolean(record.unlocked),
+        unlockedAt: record.unlockedAt || null
+      };
+    }
+  });
+  if (saved.japanBeginner?.unlocked) {
+    state.achievements.japanBeginner = {
+      unlocked: true,
+      unlockedAt: saved.japanBeginner.unlockedAt || null
+    };
+  }
+  return state;
+}
+
+function loadAchievementState() {
+  try {
+    const raw = localStorage.getItem(ACHIEVEMENT_STORAGE_KEY);
+    if (!raw) return defaultAchievementState();
+    return normalizeAchievementState(JSON.parse(raw));
+  } catch (error) {
+    console.warn("Achievement data could not be loaded.", error);
+    return defaultAchievementState();
+  }
+}
+
+function saveAchievementState(state) {
+  try {
+    localStorage.setItem(ACHIEVEMENT_STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.warn("Achievement data could not be saved.", error);
+  }
+}
+
+function achievementDescription(definition) {
+  const descriptions = {
+    japanBeginner: "探索 3 個不同的日本航點。",
+    japanTraveler: "探索 10 個不同的日本航點。",
+    japanMaster: "探索 20 個不同的日本航點。",
+    airlineCollector: "探索 5 家不同航空公司的航線。",
+    asiaExplorer: "探索 10 個亞洲航點，並涵蓋至少 4 個國家或地區。",
+    rareDestination: "探索 5 個最多僅有 2 家航司服務的航點。",
+    snowTrio: "探索札幌新千歲 CTS、青森 AOJ、秋田 AXT。",
+    silkRoadTraveler: "探索西安 XIY、塔什干 TAS、伊斯坦堡 IST。",
+    europeRomance: "探索巴黎 CDG、維也納 VIE、羅馬 FCO。"
+  };
+  return descriptions[definition.id] || "完成指定的航線探索條件。";
+}
+
+function achievementGalleryProgressText(definition, progress) {
+  if (definition.type === "asiaExplorer") {
+    return `${progress.count}/${progress.target} 航點 · ${progress.countryCount}/${progress.countryTarget} 地區`;
+  }
+  if (definition.type === "airlines") return `${progress.count}/${progress.target} 家航司`;
+  return `${progress.count}/${progress.target} 個航點`;
+}
+
+function achievementGalleryProgressRatio(definition, progress) {
+  if (definition.type === "asiaExplorer") {
+    return Math.min(
+      progress.count / progress.target,
+      progress.countryCount / progress.countryTarget,
+      1
+    );
+  }
+  return Math.min(progress.count / progress.target, 1);
+}
+
+function formatAchievementDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("zh-TW", {
+    year: "numeric", month: "short", day: "numeric"
+  }).format(date);
+}
+
+function reconcileAchievementState(state) {
+  let changed = false;
+  ACHIEVEMENT_DEFINITIONS.forEach(definition => {
+    const record = state.achievements[definition.id];
+    if (!record.unlocked && achievementProgress(definition, state).complete) {
+      record.unlocked = true;
+      record.unlockedAt = new Date().toISOString();
+      changed = true;
+    }
+  });
+  if (changed) saveAchievementState(state);
+  return state;
+}
+
+function refreshAchievementGalleryButton(state = null) {
+  const count = document.getElementById("achievement-gallery-button-count");
+  if (!count) return;
+  const current = state || loadAchievementState();
+  const unlocked = ACHIEVEMENT_DEFINITIONS.filter(item => current.achievements[item.id]?.unlocked).length;
+  count.textContent = `${unlocked}/${ACHIEVEMENT_DEFINITIONS.length}`;
+}
+
+function renderAchievementGallery() {
+  const grid = document.getElementById("achievement-gallery-grid");
+  const summary = document.getElementById("achievement-gallery-summary");
+  if (!grid || !summary) return;
+  const state = reconcileAchievementState(loadAchievementState());
+  const unlockedCount = ACHIEVEMENT_DEFINITIONS.filter(item => state.achievements[item.id]?.unlocked).length;
+  summary.innerHTML = `<strong>${unlockedCount}/${ACHIEVEMENT_DEFINITIONS.length}</strong> 枚徽章已解鎖 · 點選航點即可累積探索進度`;
+  refreshAchievementGalleryButton(state);
+
+  grid.innerHTML = ACHIEVEMENT_DEFINITIONS.map(definition => {
+    const record = state.achievements[definition.id];
+    const progress = achievementProgress(definition, state);
+    const unlocked = Boolean(record.unlocked);
+    const concealed = Boolean(definition.hidden && !unlocked);
+    const ratio = Math.round(achievementGalleryProgressRatio(definition, progress) * 100);
+    const date = formatAchievementDate(record.unlockedAt);
+    const badgeMarkup = concealed
+      ? `<span class="achievement-gallery-image-fallback" aria-hidden="true">?</span>`
+      : `<img src="${definition.badge}" alt="${definition.title}徽章"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+        <span class="achievement-gallery-image-fallback" aria-hidden="true">${definition.code}</span>`;
+    const status = concealed ? "SECRET ACHIEVEMENT" : (unlocked ? "ACHIEVEMENT UNLOCKED" : "CHALLENGE IN PROGRESS");
+    const difficulty = definition.difficulty ? ` · ${definition.difficulty}` : "";
+    const progressText = concealed ? "隱藏條件尚未揭曉" : achievementGalleryProgressText(definition, progress);
+    return `<article class="achievement-gallery-card ${unlocked ? "unlocked" : "locked"} ${concealed ? "secret" : ""}">
+      <div class="achievement-gallery-badge">
+        ${badgeMarkup}
+      </div>
+      <div class="achievement-gallery-status">${status}${difficulty}</div>
+      <h3>${concealed ? "？？？" : definition.title}</h3>
+      <p class="achievement-gallery-description">${concealed ? definition.hiddenHint : achievementDescription(definition)}</p>
+      <div class="achievement-gallery-progress-row"><span>${progressText}</span><span>${concealed ? "?" : `${ratio}%`}</span></div>
+      <div class="achievement-gallery-progress" aria-label="${concealed ? "隱藏進度" : `完成度 ${ratio}%`}"><span style="width:${concealed ? 0 : ratio}%"></span></div>
+      <div class="achievement-gallery-date">${unlocked ? (date ? `解鎖於 ${date}` : "已解鎖") : "尚未解鎖"}</div>
+    </article>`;
+  }).join("");
+}
+
+function openAchievementGallery() {
+  closeAirlinePicker();
+  closeFilterPanel();
+  renderAchievementGallery();
+  const overlay = document.getElementById("achievement-gallery-overlay");
+  const button = document.getElementById("achievement-gallery-button");
+  if (!overlay) return;
+  overlay.classList.add("show");
+  overlay.setAttribute("aria-hidden", "false");
+  if (button) button.setAttribute("aria-expanded", "true");
+  window.setTimeout(() => overlay.querySelector(".achievement-gallery-close")?.focus(), 0);
+}
+
+function closeAchievementGallery() {
+  const overlay = document.getElementById("achievement-gallery-overlay");
+  const button = document.getElementById("achievement-gallery-button");
+  if (!overlay) return;
+  overlay.classList.remove("show");
+  overlay.setAttribute("aria-hidden", "true");
+  if (button) {
+    button.setAttribute("aria-expanded", "false");
+    button.focus();
+  }
+}
+
+function handleAchievementGalleryBackdrop(event) {
+  if (event.target?.id === "achievement-gallery-overlay") closeAchievementGallery();
+}
+
+window.addEventListener("keydown", event => {
+  if (event.key === "Escape" && document.getElementById("achievement-gallery-overlay")?.classList.contains("show")) {
+    closeAchievementGallery();
+  }
+});
+
+function closeAchievementToast() {
+  const toast = document.getElementById("achievement-toast");
+  if (!toast) return;
+  toast.classList.remove("show");
+  toast.setAttribute("aria-hidden", "true");
+  if (achievementToastTimer) window.clearTimeout(achievementToastTimer);
+  achievementToastTimer = null;
+  achievementToastVisible = false;
+  if (achievementToastQueue.length) window.setTimeout(showNextAchievementToast, 280);
+}
+
+function rareAirportCodes(maxAirlines) {
+  const airlineSets = new Map();
+  AIRLINE_IDS.forEach(id => {
+    (AIRLINES[id] || []).forEach(route => {
+      if (!route.iata) return;
+      const iata = String(route.iata).toUpperCase();
+      if (!airlineSets.has(iata)) airlineSets.set(iata, new Set());
+      airlineSets.get(iata).add(id);
+    });
+  });
+  return new Set([...airlineSets.entries()]
+    .filter(([, airlines]) => airlines.size <= maxAirlines)
+    .map(([iata]) => iata));
+}
+
+function achievementProgress(definition, state) {
+  const airports = state.visitedAirports;
+  if (definition.type === "regionAirports") {
+    const count = airports.filter(iata => AIRPORT_MASTER[iata]?.region === definition.region).length;
+    return { complete: count >= definition.target, count, target: definition.target };
+  }
+  if (definition.type === "airlines") {
+    const count = state.visitedAirlines.length;
+    return { complete: count >= definition.target, count, target: definition.target };
+  }
+  if (definition.type === "asiaExplorer") {
+    const asiaAirports = airports.filter(iata => ASIA_ACHIEVEMENT_REGIONS.has(AIRPORT_MASTER[iata]?.region));
+    const countries = new Set(asiaAirports.map(iata => AIRPORT_MASTER[iata]?.country).filter(Boolean));
+    return {
+      complete: asiaAirports.length >= definition.airportTarget && countries.size >= definition.countryTarget,
+      count: asiaAirports.length,
+      target: definition.airportTarget,
+      countryCount: countries.size,
+      countryTarget: definition.countryTarget
+    };
+  }
+  if (definition.type === "rareAirports") {
+    const rare = rareAirportCodes(definition.maxAirlines);
+    const count = airports.filter(iata => rare.has(iata)).length;
+    return { complete: count >= definition.target, count, target: definition.target };
+  }
+  if (definition.type === "requiredAirports") {
+    const required = definition.airports || [];
+    const count = required.filter(iata => airports.includes(iata)).length;
+    return { complete: count >= required.length, count, target: required.length };
+  }
+  return { complete: false, count: 0, target: 1 };
+}
+
+function achievementDetail(definition, progress, justUnlocked) {
+  if (justUnlocked) return `達成條件，成功解鎖「${definition.title}」徽章！`;
+  if (definition.type === "asiaExplorer") {
+    return `已探索 ${progress.count}/${progress.target} 個亞洲航點，涵蓋 ${progress.countryCount}/${progress.countryTarget} 個國家或地區。`;
+  }
+  const unit = definition.type === "airlines" ? "家航空公司" : "個不同航點";
+  return `目前已探索 ${progress.count}/${progress.target} ${unit}。`;
+}
+
+function setAchievementBadge(definition) {
+  const seal = document.getElementById("achievement-seal");
+  const badge = document.getElementById("achievement-badge");
+  const fallback = document.getElementById("achievement-badge-fallback");
+  if (!seal || !badge || !fallback) return;
+  seal.classList.remove("has-badge");
+  fallback.textContent = definition.code;
+  badge.onload = () => seal.classList.add("has-badge");
+  badge.onerror = () => seal.classList.remove("has-badge");
+  badge.src = definition.badge;
+}
+
+function launchAchievementConfetti() {
+  if (prefersReducedMotion) return;
+  document.getElementById("achievement-confetti")?.remove();
+
+  const colors = ["#f0c252", "#ff6577", "#58c8ff", "#76df9b", "#b994ff", "#ffffff"];
+  const container = document.createElement("div");
+  container.id = "achievement-confetti";
+  container.setAttribute("aria-hidden", "true");
+
+  for (let index = 0; index < 72; index += 1) {
+    const piece = document.createElement("span");
+    piece.className = "achievement-confetti-piece";
+    piece.style.setProperty("--x", `${Math.random() * 100}vw`);
+    piece.style.setProperty("--drift", `${Math.random() * 24 - 12}vw`);
+    piece.style.setProperty("--size", `${6 + Math.random() * 8}px`);
+    piece.style.setProperty("--color", colors[index % colors.length]);
+    piece.style.setProperty("--delay", `${Math.random() * .45}s`);
+    piece.style.setProperty("--duration", `${2.4 + Math.random() * 1.4}s`);
+    piece.style.setProperty("--spin", `${360 + Math.random() * 900}deg`);
+    container.appendChild(piece);
+  }
+
+  document.body.appendChild(container);
+  window.setTimeout(() => container.remove(), 4300);
+}
+
+function showNextAchievementToast() {
+  if (achievementToastVisible || !achievementToastQueue.length) return;
+  const { definition, progress, justUnlocked } = achievementToastQueue.shift();
+  const toast = document.getElementById("achievement-toast");
+  if (!toast) return;
+  achievementToastVisible = true;
+  setAchievementBadge(definition);
+  document.getElementById("achievement-count").textContent = definition.type === "asiaExplorer"
+    ? `${Math.min(progress.count, progress.target)}/${progress.target}`
+    : `${Math.min(progress.count, progress.target)}/${progress.target}`;
+  document.getElementById("achievement-kicker").textContent = justUnlocked ? "Achievement unlocked" : "Challenge progress";
+  document.getElementById("achievement-title").textContent = definition.title;
+  document.getElementById("achievement-detail").textContent = achievementDetail(definition, progress, justUnlocked);
+  toast.classList.toggle("unlocked", justUnlocked);
+  toast.classList.add("show");
+  toast.setAttribute("aria-hidden", "false");
+  if (justUnlocked) launchAchievementConfetti();
+  if (achievementToastTimer) window.clearTimeout(achievementToastTimer);
+  achievementToastTimer = window.setTimeout(closeAchievementToast, justUnlocked ? 6500 : 3000);
+}
+
+function queueAchievementToast(definition, progress, justUnlocked = false) {
+  achievementToastQueue.push({ definition, progress, justUnlocked });
+  showNextAchievementToast();
+}
+
+function trackAirportAchievements(d, airlineId) {
+  if (!d?.iata) return;
+  const state = loadAchievementState();
+  const iata = String(d.iata).toUpperCase();
+  const id = String(airlineId || d.airline || "").toUpperCase();
+  const isNewAirport = !state.visitedAirports.includes(iata);
+  const isNewAirline = id && !state.visitedAirlines.includes(id);
+  if (!isNewAirport && !isNewAirline) return;
+
+  // 同一機場由不同航空公司或出發地進入時，只計算一次。
+  if (isNewAirport) state.visitedAirports.push(iata);
+  if (isNewAirline) state.visitedAirlines.push(id);
+
+  const newlyUnlocked = [];
+  ACHIEVEMENT_DEFINITIONS.forEach(definition => {
+    const progress = achievementProgress(definition, state);
+    const record = state.achievements[definition.id];
+    if (progress.complete && !record.unlocked) {
+      record.unlocked = true;
+      record.unlockedAt = new Date().toISOString();
+      newlyUnlocked.push({ definition, progress });
+    }
+  });
+  saveAchievementState(state);
+  refreshAchievementGalleryButton(state);
+
+  if (newlyUnlocked.length) {
+    newlyUnlocked.forEach(item => queueAchievementToast(item.definition, item.progress, true));
+  }
+}
+
 function showCard(d, id) {
   selectAirport(d, id);
   // 新增：追蹤點擊地圖標記（機場點閱率）
@@ -2113,6 +2823,8 @@ function showCard(d, id) {
     'airport_city': d.city,
     'current_airline': id
   });
+
+  trackAirportAchievements(d, id);
 
   renderInfoCard(d, id);
   // 桌面保留 Kinetics popup；手機改由底部抽屜承載資訊，避免兩個面板互相遮擋。
