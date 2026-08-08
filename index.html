@@ -14,7 +14,7 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="airline-data.js?v=20260806-tk"></script>
+  <script src="airline-data.js?v=20260808-ey-tk"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -1128,11 +1128,16 @@
     #achievement-gallery-summary { color: rgba(235,241,249,.68); font-size: 11px; }
     #achievement-gallery-summary strong { color: #fff; font-size: 13px; }
     .achievement-gallery-close {
-      width: 34px; height: 34px; flex: 0 0 34px; border: 0; border-radius: 50%;
-      color: rgba(255,255,255,.7); background: rgba(255,255,255,.08);
-      cursor: pointer; font-size: 20px; line-height: 1;
+      width: 40px; height: 40px; flex: 0 0 40px; border-radius: 50%;
+      display: grid; place-items: center;
+      color: #fff; background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.18);
+      cursor: pointer; font-size: 26px; line-height: 1;
     }
     .achievement-gallery-close:hover { color: #fff; background: rgba(255,255,255,.14); }
+    .achievement-gallery-close:focus-visible {
+      outline: 3px solid rgba(240,194,82,.88); outline-offset: 3px;
+    }
     #achievement-gallery-grid {
       overflow-y: auto; padding: 20px 24px 26px;
       display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px;
@@ -1342,14 +1347,16 @@
   </div>
 
   <div id="achievement-gallery-overlay" aria-hidden="true" onclick="handleAchievementGalleryBackdrop(event)">
-    <section class="achievement-gallery-panel" role="dialog" aria-modal="true" aria-labelledby="achievement-gallery-title">
+    <section class="achievement-gallery-panel" role="dialog" aria-modal="true"
+      aria-labelledby="achievement-gallery-title" aria-describedby="achievement-gallery-summary">
       <header class="achievement-gallery-header">
         <div>
           <div class="achievement-gallery-eyebrow">Achievement collection</div>
           <h2 id="achievement-gallery-title">成就圖鑑</h2>
           <div id="achievement-gallery-summary"></div>
         </div>
-        <button class="achievement-gallery-close" type="button" onclick="closeAchievementGallery()" aria-label="關閉成就圖鑑">×</button>
+        <button class="achievement-gallery-close" id="achievement-gallery-close" type="button"
+          onclick="closeAchievementGallery()" aria-label="關閉成就圖鑑" title="關閉成就圖鑑">×</button>
       </header>
       <div id="achievement-gallery-grid"></div>
     </section>
@@ -1404,7 +1411,7 @@ function haversine(a, b) {
   const h = Math.sin(dLat/2)**2 + Math.cos(a[0]*r)*Math.cos(b[0]*r)*Math.sin(dLon/2)**2;
   return Math.round(2*R*Math.asin(Math.sqrt(h)));
 }
-const LEFT_SIDE_AIRPORTS = new Set(["MAD", "LHR", "LGW", "DUB", "LIS", "AGP", "MAN", "CMN"]);
+const LEFT_SIDE_AIRPORTS = new Set(["ACC", "MAD", "LHR", "LGW", "DUB", "LIS", "AGP", "MAN", "CMN"]);
 
 function bezierArc(s, e, preferLeftSide = false) {
   let eLng = e[1];
@@ -1422,6 +1429,19 @@ function mapCoord(c, iata) {
   // 預設把西半球往右側平移，讓跨圖路線保持一致；少數例外維持左側顯示。
   if (c[1] < 0 && !LEFT_SIDE_AIRPORTS.has(iata)) return [c[0], c[1] + 360];
   return c;
+}
+function mapRouteCoord(d, id) {
+  if (id !== "TK") return mapCoord(d.coords, d.iata);
+
+  // 土耳其航空以每條航線的出發地為基準，選擇距離最近的世界地圖副本。
+  const meta = AIRLINE_META_INFO[id] || {};
+  const originCoord = HUB_COORDS[d.origin] || meta.hubCoords || HUB_COORDS.IST;
+  const [lat, lng] = d.coords;
+  const candidateLngs = [lng - 360, lng, lng + 360];
+  const nearestLng = candidateLngs.reduce((nearest, candidate) =>
+    Math.abs(candidate - originCoord[1]) < Math.abs(nearest - originCoord[1]) ? candidate : nearest,
+  lng);
+  return [lat, nearestLng];
 }
 // 同一航空公司可能有多個出發機場飛往同一目的地（例如 GK 從 NRT/KIX/NGO/FUK 都有航班飛同城市），
 // 純用 iata 當 key 會互相覆蓋，因此統一用 iata+origin 組成複合鍵。
@@ -1518,7 +1538,7 @@ function selectAirport(d, id) {
   clearSelectedAirport();
   const meta = AIRLINE_META_INFO[id] || {};
   selectedAirportKey = key;
-  selectedAirportRing = L.circleMarker(mapCoord(d.coords, d.iata), {
+  selectedAirportRing = L.circleMarker(mapRouteCoord(d, id), {
     radius: markerRadius + (isTouchDevice ? 6 : 5),
     color: meta.color || "#1d1d1f",
     fill: false,
@@ -1537,7 +1557,7 @@ function selectAirport(d, id) {
 function animateArrivalPulse(d, id) {
   if (prefersReducedMotion || !map) return;
   const meta = AIRLINE_META_INFO[id] || {};
-  const pulse = L.circleMarker(mapCoord(d.coords, d.iata), {
+  const pulse = L.circleMarker(mapRouteCoord(d, id), {
     radius: markerRadius + 2,
     color: meta.color || "#1d1d1f",
     fill: false,
@@ -1671,7 +1691,7 @@ function originPickerHtml(candidates) {
 function showOriginPicker(candidates, id) {
   closeRoutePopup();
   originPickerCandidates = candidates;
-  const viewCoord = mapCoord(candidates[0].coords, candidates[0].iata);
+  const viewCoord = mapRouteCoord(candidates[0], id);
   activeRoutePopup = L.popup({
     className: "route-popup",
     closeButton: false,
@@ -1735,14 +1755,14 @@ function closeRoutePopup() {
     activeLine = null;
   }
 }
-function openRoutePopup(d, id, pinned = false, showPopup = true) {
+function openRoutePopup(d, id, showPopup = true) {
   closeRoutePopup();
   const meta = AIRLINE_META_INFO[id] || {};
   const rawHub = HUB_COORDS[d.origin] || meta.hubCoords || HUB_COORDS.TPE;
   const hubCoord = mapCoord(rawHub, "");
-  const viewCoord = mapCoord(d.coords, d.iata);
+  const viewCoord = mapRouteCoord(d, id);
   activeLine = L.polyline(
-    bezierArc(hubCoord, viewCoord, LEFT_SIDE_AIRPORTS.has(d.iata)),
+    bezierArc(hubCoord, viewCoord, id === "TK" || LEFT_SIDE_AIRPORTS.has(d.iata)),
     { color:meta.color || "#000", weight:1.8, opacity:0.65, interactive:false }
   ).addTo(map);
   animateRouteDraw(activeLine, d, id);
@@ -1757,11 +1777,6 @@ function openRoutePopup(d, id, pinned = false, showPopup = true) {
       offset: [14, 0]
     }).setLatLng(viewCoord).setContent(routePopupHtml(d, id)).openOn(map);
   }
-}
-function freqLabel(freq) {
-  if (!freq) return null;
-  if (freq === 7) return "每日";
-  return `每週 ${freq} 班`;
 }
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
@@ -2086,7 +2101,7 @@ window.addEventListener("DOMContentLoaded", () => {
     // 目的地圓點就不用再疊一次文字，避免兩組標籤疊在同一個座標上。
     const hubOrigins = new Set(al.map(x => x.origin));
     al.forEach(d => {
-      const viewCoord = mapCoord(d.coords, d.iata);
+      const viewCoord = mapRouteCoord(d, id);
       const suspended = d.status === "SUSPENDED";
       const visibleMarker = L.circleMarker(viewCoord, {
         radius: markerRadius, color: meta.color, fillColor: meta.color,
@@ -2451,6 +2466,7 @@ const ACHIEVEMENT_DEFINITIONS = [
 let achievementToastTimer = null;
 let achievementToastQueue = [];
 let achievementToastVisible = false;
+let achievementGalleryReturnFocus = null;
 
 function defaultAchievementState() {
   return {
@@ -2623,10 +2639,11 @@ function openAchievementGallery() {
   const overlay = document.getElementById("achievement-gallery-overlay");
   const button = document.getElementById("achievement-gallery-button");
   if (!overlay) return;
+  achievementGalleryReturnFocus = document.activeElement;
   overlay.classList.add("show");
   overlay.setAttribute("aria-hidden", "false");
   if (button) button.setAttribute("aria-expanded", "true");
-  window.setTimeout(() => overlay.querySelector(".achievement-gallery-close")?.focus(), 0);
+  window.setTimeout(() => document.getElementById("achievement-gallery-close")?.focus(), 0);
 }
 
 function closeAchievementGallery() {
@@ -2635,10 +2652,10 @@ function closeAchievementGallery() {
   if (!overlay) return;
   overlay.classList.remove("show");
   overlay.setAttribute("aria-hidden", "true");
-  if (button) {
-    button.setAttribute("aria-expanded", "false");
-    button.focus();
-  }
+  if (button) button.setAttribute("aria-expanded", "false");
+  const returnTarget = achievementGalleryReturnFocus || button;
+  achievementGalleryReturnFocus = null;
+  if (returnTarget && document.contains(returnTarget)) returnTarget.focus();
 }
 
 function handleAchievementGalleryBackdrop(event) {
@@ -2646,8 +2663,33 @@ function handleAchievementGalleryBackdrop(event) {
 }
 
 window.addEventListener("keydown", event => {
-  if (event.key === "Escape" && document.getElementById("achievement-gallery-overlay")?.classList.contains("show")) {
+  const overlay = document.getElementById("achievement-gallery-overlay");
+  if (!overlay?.classList.contains("show")) return;
+
+  if (event.key === "Escape") {
+    event.preventDefault();
     closeAchievementGallery();
+    return;
+  }
+
+  if (event.key !== "Tab") return;
+  const focusable = [...overlay.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )].filter(element => !element.hidden && element.getAttribute("aria-hidden") !== "true" && element.offsetParent !== null);
+  if (!focusable.length) return;
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  const active = document.activeElement;
+  if (!overlay.contains(active)) {
+    event.preventDefault();
+    (event.shiftKey ? last : first).focus();
+  } else if (event.shiftKey && active === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && active === last) {
+    event.preventDefault();
+    first.focus();
   }
 });
 
@@ -2766,7 +2808,7 @@ function showNextAchievementToast() {
   achievementToastVisible = true;
   setAchievementBadge(definition);
   document.getElementById("achievement-count").textContent = definition.type === "asiaExplorer"
-    ? `${Math.min(progress.count, progress.target)}/${progress.target}`
+    ? `${Math.min(progress.count, progress.target)}/${progress.target} 航點 · ${Math.min(progress.countryCount, progress.countryTarget)}/${progress.countryTarget} 地區`
     : `${Math.min(progress.count, progress.target)}/${progress.target}`;
   document.getElementById("achievement-kicker").textContent = justUnlocked ? "Achievement unlocked" : "Challenge progress";
   document.getElementById("achievement-title").textContent = definition.title;
@@ -2828,7 +2870,7 @@ function showCard(d, id) {
 
   renderInfoCard(d, id);
   // 桌面保留 Kinetics popup；手機改由底部抽屜承載資訊，避免兩個面板互相遮擋。
-  openRoutePopup(d, id, false, !isTouchDevice);
+  openRoutePopup(d, id, !isTouchDevice);
 }
 
 function hideCard() {
@@ -2925,7 +2967,7 @@ function selectGlobalRoute(id, iata, origin) {
   document.getElementById("search-input").value = "";
   document.getElementById("search-results").style.display = "none";
 
-  map.flyTo(mapCoord(d.coords, d.iata), 6, { duration: 1.2 });
+  map.flyTo(mapRouteCoord(d, id), 6, { duration: 1.2 });
   map.once("moveend", () => showCard(d, id));
 }
 

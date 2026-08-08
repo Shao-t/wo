@@ -1,6 +1,6 @@
 // airline-data.js
 // Production-ready unified schema
-// Last updated: 2026-08-01 (correction wave 3)
+// Last updated: 2026-08-08 (EY/TK international-route audit)
 // Schema version: 2.0
 //
 // Wave 3: Phnom Penh airport-code migration, non-stop/stopover modelling,
@@ -44,6 +44,7 @@ window.AIRLINE_META = {
 };
 
 window.AIRPORT_MASTER = {
+  ACC: { city:"阿克拉", airportName:"Kotoka International Airport", country:"Ghana", coords:[5.6052,-0.1668], region:"AFRICA" },
   ADD: { city:"阿迪斯阿貝巴", airportName:"Addis Ababa Bole International Airport", country:"Ethiopia", coords:[8.9779,38.7993], region:"AFRICA" },
   ADL: { city:"阿德雷德", airportName:"Adelaide Airport", country:"Australia", coords:[-34.945,138.5306], region:"OCEANIA" },
   AER: { city:"索契", airportName:"Sochi International Airport", country:"Russia", coords:[43.4499,39.9566], region:"EUROPE" },
@@ -57,6 +58,7 @@ window.AIRPORT_MASTER = {
   AMS: { city:"阿姆斯特丹", airportName:"Amsterdam Airport Schiphol", country:"Netherlands", coords:[52.3086,4.7639], region:"EUROPE" },
   AOJ: { city:"青森", airportName:"Aomori Airport", country:"Japan", coords:[40.7347,140.691], region:"JAPAN" },
   ARN: { city:"斯德哥爾摩", airportName:"Stockholm Arlanda Airport", country:"Sweden", coords:[59.6519,17.9186], region:"EUROPE" },
+  ASM: { city:"阿斯馬拉", airportName:"Asmara International Airport", country:"Eritrea", coords:[15.2919,38.9107], region:"AFRICA" },
   ATH: { city:"雅典", airportName:"Athens International Airport", country:"Greece", coords:[37.9364,23.9445], region:"EUROPE" },
   ATL: { city:"亞特蘭大", airportName:"Hartsfield-Jackson Atlanta International Airport", country:"USA", coords:[33.6407,-84.4277], region:"NORTH_AMERICA" },
   AUH: { city:"阿布達比", airportName:"Zayed International Airport", country:"UAE", coords:[24.433,54.6511], region:"MIDDLE_EAST" },
@@ -79,6 +81,7 @@ window.AIRPORT_MASTER = {
   CCU: { city:"加爾各答", airportName:"Netaji Subhas Chandra Bose International Airport", country:"India", coords:[22.6547,88.4467], region:"SOUTH_ASIA" },
   CDG: { city:"巴黎", airportName:"Charles de Gaulle Airport", country:"France", coords:[49.0097,2.5479], region:"EUROPE" },
   CEB: { city:"宿霧", airportName:"Mactan-Cebu International Airport", country:"Philippines", coords:[10.3157,123.9789], region:"PHILIPPINES" },
+  CGO: { city:"鄭州", airportName:"Zhengzhou Xinzheng International Airport", country:"China", coords:[34.5197,113.8409], region:"CHINA" },
   CGK: { city:"雅加達", airportName:"Soekarno-Hatta International Airport", country:"Indonesia", coords:[-6.1256,106.6559], region:"SOUTHEAST_ASIA" },
   CGQ: { city:"長春", airportName:"Changchun Longjia International Airport", country:"China", coords:[43.9962,125.685], region:"CHINA" },
   CJJ: { city:"清州", airportName:"Cheongju International Airport", country:"South Korea", coords:[36.7166,127.4992], region:"NORTHEAST_ASIA" },
@@ -92,10 +95,12 @@ window.AIRPORT_MASTER = {
   CRK: { city:"克拉克", airportName:"Clark International Airport", country:"Philippines", coords:[15.1858,120.5601], region:"PHILIPPINES" },
   CSX: { city:"長沙", airportName:"Changsha Huanghua International Airport", country:"China", coords:[28.1892,113.2196], region:"CHINA" },
   CTS: { city:"札幌新千歲", airportName:"New Chitose Airport", country:"Japan", coords:[42.7752,141.6923], region:"JAPAN" },
+  CXR: { city:"芽莊", airportName:"Cam Ranh International Airport", country:"Vietnam", coords:[11.9982,109.2192], region:"SOUTHEAST_ASIA" },
   CTU: { city:"成都雙流", airportName:"Chengdu Shuangliu International Airport", country:"China", coords:[30.5785,103.9471], region:"CHINA" },
   DAC: { city:"達卡", airportName:"Hazrat Shahjalal International Airport", country:"Bangladesh", coords:[23.8433,90.3978], region:"SOUTH_ASIA" },
   DAD: { city:"峴港", airportName:"Da Nang International Airport", country:"Vietnam", coords:[16.0439,108.1994], region:"SOUTHEAST_ASIA" },
   DAM: { city:"大馬士革", airportName:"Damascus International Airport", country:"Syria", coords:[33.4115,36.5156], region:"MIDDLE_EAST" },
+  DBB: { city:"阿拉曼", airportName:"El Alamein International Airport", country:"Egypt", coords:[30.9245,28.4614], region:"AFRICA" },
   DEL: { city:"新德里", airportName:"Indira Gandhi International Airport", country:"India", coords:[28.5562,77.1], region:"SOUTH_ASIA" },
   DFW: { city:"達拉斯", airportName:"Dallas/Fort Worth International Airport", country:"USA", coords:[32.8998,-97.0403], region:"NORTH_AMERICA" },
   DLC: { city:"大連", airportName:"Dalian Zhoushuizi International Airport", country:"China", coords:[38.9656,121.5386], region:"CHINA" },
@@ -106,10 +111,12 @@ window.AIRPORT_MASTER = {
   DUS: { city:"杜塞道夫", airportName:"Dusseldorf Airport", country:"Germany", coords:[51.2895,6.7668], region:"EUROPE" },
   DWC: { city:"杜拜", airportName:"Al Maktoum International Airport", country:"UAE", coords:[24.8964,55.1614], region:"MIDDLE_EAST" },
   DXB: { city:"杜拜", airportName:"Dubai International Airport", country:"UAE", coords:[25.2532,55.3657], region:"MIDDLE_EAST" },
+  DYG: { city:"張家界", airportName:"Zhangjiajie Hehua International Airport", country:"China", coords:[29.1028,110.443], region:"CHINA" },
   ELQ: { city:"卡西姆", airportName:"Prince Naif bin Abdulaziz International Airport", country:"Saudi Arabia", coords:[26.3028,43.7743], region:"MIDDLE_EAST" },
   EVN: { city:"葉里溫", airportName:"Zvartnots International Airport", country:"Armenia", coords:[40.1473,44.3959], region:"CENTRAL_ASIA" },
   EZE: { city:"布宜諾斯艾利斯", airportName:"Ministro Pistarini International Airport", country:"Argentina", coords:[-34.8222,-58.5358], region:"SOUTH_AMERICA" },
   FCO: { city:"羅馬", airportName:"Leonardo da Vinci-Fiumicino Airport", country:"Italy", coords:[41.8003,12.2389], region:"EUROPE" },
+  FBM: { city:"盧本巴希", airportName:"Lubumbashi International Airport", country:"DR Congo", coords:[-11.5913,27.5309], region:"AFRICA" },
   FKS: { city:"福島", airportName:"Fukushima Airport", country:"Japan", coords:[37.2269,140.4281], region:"JAPAN" },
   FOC: { city:"福州", airportName:"Fuzhou Changle International Airport", country:"China", coords:[25.9352,119.663], region:"CHINA" },
   FRA: { city:"法蘭克福", airportName:"Frankfurt Airport", country:"Germany", coords:[50.0379,8.5622], region:"EUROPE" },
@@ -120,6 +127,7 @@ window.AIRPORT_MASTER = {
   GYD: { city:"巴庫", airportName:"Heydar Aliyev International Airport", country:"Azerbaijan", coords:[40.4675,50.0467], region:"CENTRAL_ASIA" },
   HAN: { city:"河內", airportName:"Noi Bai International Airport", country:"Vietnam", coords:[21.2212,105.8072], region:"SOUTHEAST_ASIA" },
   HBE: { city:"阿拉曼", airportName:"Borg El Arab International Airport", country:"Egypt", coords:[30.9187,29.6964], region:"AFRICA" },
+  HFE: { city:"合肥", airportName:"Hefei Xinqiao International Airport", country:"China", coords:[31.9878,116.9769], region:"CHINA" },
   HGH: { city:"杭州", airportName:"Hangzhou Xiaoshan International Airport", country:"China", coords:[30.2295,120.4344], region:"CHINA" },
   HIJ: { city:"廣島", airportName:"Hiroshima Airport", country:"Japan", coords:[34.4366,132.9194], region:"JAPAN" },
   HIN: { city:"晉州／泗川", airportName:"Sacheon Airport", country:"South Korea", coords:[35.0885,128.0708], region:"NORTHEAST_ASIA" },
@@ -129,8 +137,10 @@ window.AIRPORT_MASTER = {
   HNA: { city:"花卷", airportName:"Iwate Hanamaki Airport", country:"Japan", coords:[39.4286,141.135], region:"JAPAN" },
   HND: { city:"東京羽田", airportName:"Tokyo Haneda Airport", country:"Japan", coords:[35.5494,139.7798], region:"JAPAN" },
   HNL: { city:"檀香山", airportName:"Daniel K. Inouye International Airport", country:"USA", coords:[21.3245,-157.9251], region:"NORTH_AMERICA" },
+  HRE: { city:"哈拉雷", airportName:"Robert Gabriel Mugabe International Airport", country:"Zimbabwe", coords:[-17.9318,31.0928], region:"AFRICA" },
   HRB: { city:"哈爾濱", airportName:"Harbin Taiping International Airport", country:"China", coords:[45.6234,126.25], region:"CHINA" },
   HSG: { city:"佐賀", airportName:"Saga Airport", country:"Japan", coords:[33.1497,130.302], region:"JAPAN" },
+  HSA: { city:"土耳其斯坦", airportName:"Hazret Sultan International Airport", country:"Kazakhstan", coords:[43.3131,68.5499], region:"CENTRAL_ASIA" },
   HYD: { city:"海得拉巴", airportName:"Rajiv Gandhi International Airport", country:"India", coords:[17.2403,78.4294], region:"SOUTH_ASIA" },
   IAD: { city:"華盛頓", airportName:"Washington Dulles International Airport", country:"USA", coords:[38.9531,-77.4565], region:"NORTH_AMERICA" },
   IAH: { city:"休士頓", airportName:"George Bush Intercontinental Airport", country:"USA", coords:[29.9902,-95.3368], region:"NORTH_AMERICA" },
@@ -262,6 +272,7 @@ window.AIRPORT_MASTER = {
   YNJ: { city:"延吉", airportName:"Yanji Chaoyangchuan International Airport", country:"China", coords:[42.8828,129.4512], region:"CHINA" },
   YNT: { city:"煙台", airportName:"Yantai Penglai International Airport", country:"China", coords:[37.666,120.9744], region:"CHINA" },
   YVR: { city:"溫哥華", airportName:"Vancouver International Airport", country:"Canada", coords:[49.1967,-123.1815], region:"NORTH_AMERICA" },
+  YYC: { city:"卡加利", airportName:"Calgary International Airport", country:"Canada", coords:[51.1139,-114.0203], region:"NORTH_AMERICA" },
   YYZ: { city:"多倫多", airportName:"Toronto Pearson International Airport", country:"Canada", coords:[43.6777,-79.6248], region:"NORTH_AMERICA" },
   ZNZ: { city:"尚吉巴", airportName:"Abeid Amani Karume International Airport", country:"Tanzania", coords:[-6.222,39.2249], region:"AFRICA" },
   ZRH: { city:"蘇黎世", airportName:"Zurich Airport", country:"Switzerland", coords:[47.4582,8.5481], region:"EUROPE" },
@@ -470,23 +481,23 @@ window.AIRLINE_DATA = {
     { iata:"TPE", city:"台北桃園", airportName:"Taiwan Taoyuan International Airport", country:"Taiwan", coords:[25.0797,121.2342], region:"TAIWAN", frequency:7, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU2009"], origin:"NGB", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"TPE", city:"台北桃園", airportName:"Taiwan Taoyuan International Airport", country:"Taiwan", coords:[25.0797,121.2342], region:"TAIWAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU2087"], origin:"WUH", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"TPE", city:"台北桃園", airportName:"Taiwan Taoyuan International Airport", country:"Taiwan", coords:[25.0797,121.2342], region:"TAIWAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU2041"], origin:"TAO", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"TSA", city:"台北松山", airportName:"Taipei Songshan Airport", country:"Taiwan", coords:[25.0694,121.5515], region:"TAIWAN", frequency:7, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU5097"], origin:"SHA", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"TSA", city:"台北松山", airportName:"Taipei Songshan Airport", country:"Taiwan", coords:[25.0694,121.5515], region:"TAIWAN", frequency:14, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU5097","FM851"], origin:"SHA", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"KHH", city:"高雄", airportName:"Kaohsiung International Airport", country:"Taiwan", coords:[22.5771,120.35], region:"TAIWAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU2945"], origin:"NKG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"KHH", city:"高雄", airportName:"Kaohsiung International Airport", country:"Taiwan", coords:[22.5771,120.35], region:"TAIWAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU2561"], origin:"WUH", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"RMQ", city:"台中", airportName:"Taichung International Airport", country:"Taiwan", coords:[24.2647,120.6222], region:"TAIWAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU2941"], origin:"NKG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"RMQ", city:"台中", airportName:"Taichung International Airport", country:"Taiwan", coords:[24.2647,120.6222], region:"TAIWAN", frequency:2, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU827"], origin:"TFU", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"HND", city:"東京羽田", airportName:"Tokyo Haneda Airport", country:"Japan", coords:[35.5494,139.7798], region:"JAPAN", frequency:14, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU539","MU575"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"HND", city:"東京羽田", airportName:"Tokyo Haneda Airport", country:"Japan", coords:[35.5494,139.7798], region:"JAPAN", frequency:21, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU539","MU575","FM895"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"NRT", city:"東京成田", airportName:"Narita International Airport", country:"Japan", coords:[35.772,140.3929], region:"JAPAN", frequency:14, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU271","MU521","MU523","MU727"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"FUK", city:"福岡", airportName:"Fukuoka Airport", country:"Japan", coords:[33.5859,130.4507], region:"JAPAN", frequency:14, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU517","MU531","MU5087"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"HIJ", city:"廣島", airportName:"Hiroshima Airport", country:"Japan", coords:[34.4366,132.9194], region:"JAPAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU293"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"NGO", city:"名古屋", airportName:"Chubu Centrair International Airport", country:"Japan", coords:[34.8584,136.8054], region:"JAPAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU291","MU529","MU719"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"OKA", city:"沖繩那霸", airportName:"Naha Airport", country:"Japan", coords:[26.2064,127.646], region:"JAPAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU287","MU2085"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"KIX", city:"大阪關西", airportName:"Kansai International Airport", country:"Japan", coords:[34.4347,135.244], region:"JAPAN", frequency:21, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU225","MU233","MU515","MU729","MU747"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"KIX", city:"大阪關西", airportName:"Kansai International Airport", country:"Japan", coords:[34.4347,135.244], region:"JAPAN", frequency:28, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU225","MU233","MU515","MU729","MU747","FM821"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"CTS", city:"札幌新千歲", airportName:"New Chitose Airport", country:"Japan", coords:[42.7752,141.6923], region:"JAPAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU273","MU279"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"ICN", city:"首爾仁川", airportName:"Incheon International Airport", country:"South Korea", coords:[37.4602,126.4407], region:"NORTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU5011","MU5033","MU5041","MU5051"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"GMP", city:"首爾金浦", airportName:"Gimpo International Airport", country:"South Korea", coords:[37.5583,126.7906], region:"NORTHEAST_ASIA", frequency:7, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU511"], origin:"SHA", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"GMP", city:"首爾金浦", airportName:"Gimpo International Airport", country:"South Korea", coords:[37.5583,126.7906], region:"NORTHEAST_ASIA", frequency:14, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU511","FM823"], origin:"SHA", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"CJJ", city:"清州", airportName:"Cheongju International Airport", country:"South Korea", coords:[36.7166,127.4992], region:"NORTHEAST_ASIA", frequency:3, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU5083"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE", effectiveDate:"2026-07-30" },
-    { iata:"PUS", city:"釜山", airportName:"Gimhae International Airport", country:"South Korea", coords:[35.1795,128.9382], region:"NORTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU5043","MU8605"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"PUS", city:"釜山", airportName:"Gimhae International Airport", country:"South Korea", coords:[35.1795,128.9382], region:"NORTHEAST_ASIA", frequency:14, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU5043","FM829"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"TAE", city:"大邱", airportName:"Daegu International Airport", country:"South Korea", coords:[35.8942,128.6589], region:"NORTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU5053"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"CJU", city:"濟州", airportName:"Jeju International Airport", country:"South Korea", coords:[33.5113,126.493], region:"NORTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU5027","MU5037","MU5059"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"KTI", city:"金邊", airportName:"Techo International Airport", country:"Cambodia", coords:[11.3629,104.9166], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU759"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
@@ -495,12 +506,12 @@ window.AIRLINE_DATA = {
     { iata:"DPS", city:"峇里島", airportName:"Ngurah Rai International Airport", country:"Indonesia", coords:[-8.7482,115.167], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU5029"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"VTE", city:"萬象", airportName:"Wattay International Airport", country:"Laos", coords:[17.9883,102.563], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU283"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"LPQ", city:"琅勃拉邦", airportName:"Luang Prabang International Airport", country:"Laos", coords:[19.8973,102.1608], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU9643"], origin:"KMG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"KUL", city:"吉隆坡", airportName:"Kuala Lumpur International Airport", country:"Malaysia", coords:[2.7456,101.7072], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU6021"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"KUL", city:"吉隆坡", airportName:"Kuala Lumpur International Airport", country:"Malaysia", coords:[2.7456,101.7072], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU6021","FM861","FM863","FM865","FM885"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"MDL", city:"曼德勒", airportName:"Mandalay International Airport", country:"Myanmar", coords:[21.7022,95.978], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU2029"], origin:"KMG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"RGN", city:"仰光", airportName:"Yangon International Airport", country:"Myanmar", coords:[16.9073,96.1332], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU2031","MU9615"], origin:"KMG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"MNL", city:"馬尼拉", airportName:"Ninoy Aquino International Airport", country:"Philippines", coords:[14.5086,121.0198], region:"PHILIPPINES", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU211"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"CEB", city:"宿霧", airportName:"Mactan-Cebu International Airport", country:"Philippines", coords:[10.3157,123.9789], region:"PHILIPPINES", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU5023"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"SIN", city:"新加坡", airportName:"Singapore Changi Airport", country:"Singapore", coords:[1.3644,103.9915], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU543","MU545","MU565","MU567","MU6049"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"SIN", city:"新加坡", airportName:"Singapore Changi Airport", country:"Singapore", coords:[1.3644,103.9915], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU543","MU545","MU565","MU567","MU6049","FM843"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"BKK", city:"曼谷", airportName:"Suvarnabhumi Airport", country:"Thailand", coords:[13.69,100.7501], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU541","MU547"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"CNX", city:"清邁", airportName:"Chiang Mai International Airport", country:"Thailand", coords:[18.7668,98.9626], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU205"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"HKT", city:"普吉島", airportName:"Phuket International Airport", country:"Thailand", coords:[8.1132,98.3169], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU5093"], origin:"KMG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
@@ -513,7 +524,7 @@ window.AIRLINE_DATA = {
     { iata:"CCU", city:"加爾各答", airportName:"Netaji Subhas Chandra Bose International Airport", country:"India", coords:[22.6547,88.4467], region:"SOUTH_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU555"], origin:"KMG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE", effectiveDate:"2026-04-18" },
     { iata:"KTM", city:"加德滿都", airportName:"Tribhuvan International Airport", country:"Nepal", coords:[27.6966,85.3591], region:"SOUTH_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU9617"], origin:"KMG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"MLE", city:"馬累", airportName:"Velana International Airport", country:"Maldives", coords:[4.1919,73.529], region:"SOUTH_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU235"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"CMB", city:"可倫坡", airportName:"Bandaranaike International Airport", country:"Sri Lanka", coords:[7.1808,79.8842], region:"SOUTH_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU231"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"CMB", city:"可倫坡", airportName:"Bandaranaike International Airport", country:"Sri Lanka", coords:[7.1808,79.8842], region:"SOUTH_ASIA", frequency:7, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU6017"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"ALA", city:"阿拉木圖", airportName:"Almaty International Airport", country:"Kazakhstan", coords:[43.3521,77.0405], region:"CENTRAL_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU6041"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"TAS", city:"塔什干", airportName:"Tashkent International Airport", country:"Uzbekistan", coords:[41.2579,69.2811], region:"CENTRAL_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU6037"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"RUH", city:"利雅得", airportName:"King Khalid International Airport", country:"Saudi Arabia", coords:[24.9578,46.6989], region:"MIDDLE_EAST", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU269"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"SUSPENDED", resumeDate:"2026-09" },
@@ -527,19 +538,19 @@ window.AIRLINE_DATA = {
     { iata:"CDG", city:"巴黎", airportName:"Charles de Gaulle Airport", country:"France", coords:[49.0097,2.5479], region:"EUROPE", frequency:14, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU553","MU569"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"AMS", city:"阿姆斯特丹", airportName:"Amsterdam Airport Schiphol", country:"Netherlands", coords:[52.3086,4.7639], region:"EUROPE", frequency:7, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU771"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"FCO", city:"羅馬", airportName:"Leonardo da Vinci-Fiumicino Airport", country:"Italy", coords:[41.8003,12.2389], region:"EUROPE", frequency:7, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU787"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"MXP", city:"米蘭", airportName:"Milan Malpensa Airport", country:"Italy", coords:[45.6306,8.7281], region:"EUROPE", frequency:4, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU243"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE", nonstop:true, stops:[] },
+    { iata:"MXP", city:"米蘭", airportName:"Milan Malpensa Airport", country:"Italy", coords:[45.6306,8.7281], region:"EUROPE", frequency:7, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU243"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE", nonstop:true, stops:[] },
     { iata:"VCE", city:"威尼斯", airportName:"Venice Marco Polo Airport", country:"Italy", coords:[45.5053,12.3519], region:"EUROPE", frequency:3, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU785"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"MAD", city:"馬德里", airportName:"Adolfo Suarez Madrid-Barajas Airport", country:"Spain", coords:[40.4839,-3.568], region:"EUROPE", frequency:4, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU709"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"BCN", city:"巴塞隆納", airportName:"Josep Tarradellas Barcelona-El Prat Airport", country:"Spain", coords:[41.2974,2.0833], region:"EUROPE", frequency:10, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU249","MU7235"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"MRS", city:"馬賽", airportName:"Marseille Provence Airport", country:"France", coords:[43.4367,5.215], region:"EUROPE", frequency:4, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["FM871"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"SEASONAL", nonstop:true, stops:[] },
     { iata:"CMN", city:"卡薩布蘭卡", airportName:"Mohammed V International Airport", country:"Morocco", coords:[33.3675,-7.59], region:"AFRICA", frequency:4, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["FM871"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"SEASONAL", nonstop:false, stops:["MRS"] },
-    { iata:"BUD", city:"布達佩斯", airportName:"Budapest Ferenc Liszt International Airport", country:"Hungary", coords:[47.4369,19.2556], region:"EUROPE", frequency:3, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU865"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"BUD", city:"布達佩斯", airportName:"Budapest Ferenc Liszt International Airport", country:"Hungary", coords:[47.4369,19.2556], region:"EUROPE", frequency:7, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["FM869"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"VIE", city:"維也納", airportName:"Vienna International Airport", country:"Austria", coords:[48.1103,16.5697], region:"EUROPE", frequency:3, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU5063"], origin:"XIY", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"CPH", city:"哥本哈根", airportName:"Copenhagen Airport", country:"Denmark", coords:[55.6181,12.6561], region:"EUROPE", frequency:5, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU707","MU7231"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"GVA", city:"日內瓦", airportName:"Geneva Airport", country:"Switzerland", coords:[46.237,6.1089], region:"EUROPE", frequency:3, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU217"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"SEASONAL", nonstop:true, stops:[] },
     { iata:"ZRH", city:"蘇黎世", airportName:"Zurich Airport", country:"Switzerland", coords:[47.4582,8.5481], region:"EUROPE", frequency:3, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU255"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"IST", city:"伊斯坦堡", airportName:"Istanbul Airport", country:"Turkiye", coords:[41.2753,28.7519], region:"EUROPE", frequency:6, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU703"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"IST", city:"伊斯坦堡", airportName:"Istanbul Airport", country:"Turkiye", coords:[41.2753,28.7519], region:"EUROPE", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU5025"], origin:"XIY", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"IST", city:"伊斯坦堡", airportName:"Istanbul Airport", country:"Turkiye", coords:[41.2753,28.7519], region:"EUROPE", frequency:3, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:["MU5025"], origin:"XIY", airline:"MU", alliance:"SkyTeam", status:"SEASONAL" },
     { iata:"ARN", city:"斯德哥爾摩", airportName:"Stockholm Arlanda Airport", country:"Sweden", coords:[59.6519,17.9186], region:"EUROPE", frequency:3, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU289"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"SVO", city:"莫斯科", airportName:"Sheremetyevo International Airport", country:"Russia", coords:[55.9726,37.4146], region:"EUROPE", frequency:7, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU591"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"LED", city:"聖彼得堡", airportName:"Pulkovo Airport", country:"Russia", coords:[59.8003,30.2625], region:"EUROPE", frequency:3, frequencyType:"weekly", lastUpdated:"2026-06", flightNumbers:["MU259"], origin:"PVG", airline:"MU", alliance:"SkyTeam", status:"SEASONAL" },
@@ -796,7 +807,7 @@ window.AIRLINE_DATA = {
     { iata:"PQC", city:"富國島", airportName:"Phu Quoc International Airport", country:"Vietnam", coords:[10.1698,103.9931], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"MNL", city:"馬尼拉", airportName:"Ninoy Aquino International Airport", country:"Philippines", coords:[14.5086,121.0198], region:"PHILIPPINES", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"CEB", city:"宿霧", airportName:"Mactan-Cebu International Airport", country:"Philippines", coords:[10.3157,123.9789], region:"PHILIPPINES", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"CRK", city:"克拉克", airportName:"Clark International Airport", country:"Philippines", coords:[15.1858,120.5601], region:"PHILIPPINES", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"CRK", city:"克拉克", airportName:"Clark International Airport", country:"Philippines", coords:[15.1858,120.5601], region:"PHILIPPINES", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"SUSPENDED" },
     { iata:"SIN", city:"新加坡", airportName:"Singapore Changi Airport", country:"Singapore", coords:[1.3644,103.9915], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"KUL", city:"吉隆坡", airportName:"Kuala Lumpur International Airport", country:"Malaysia", coords:[2.7456,101.7072], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"CGK", city:"雅加達", airportName:"Soekarno-Hatta International Airport", country:"Indonesia", coords:[-6.1256,106.6559], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
@@ -840,16 +851,64 @@ window.AIRLINE_DATA = {
     { iata:"SHA", city:"上海虹橋", airportName:"Shanghai Hongqiao International Airport", country:"China", coords:[31.1979,121.3363], region:"CHINA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"GMP", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"TPE", city:"台北桃園", airportName:"Taiwan Taoyuan International Airport", country:"Taiwan", coords:[25.0797,121.2342], region:"TAIWAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"PUS", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"NRT", city:"東京成田", airportName:"Narita International Airport", country:"Japan", coords:[35.772,140.3929], region:"JAPAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"PUS", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"KIX", city:"大阪關西", airportName:"Kansai International Airport", country:"Japan", coords:[34.4347,135.244], region:"JAPAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"PUS", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"KIX", city:"大阪關西", airportName:"Kansai International Airport", country:"Japan", coords:[34.4347,135.244], region:"JAPAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:[], origin:"PUS", airline:"KE", alliance:"SkyTeam", status:"SUSPENDED" },
     { iata:"NGO", city:"名古屋", airportName:"Chubu Centrair International Airport", country:"Japan", coords:[34.8584,136.8054], region:"JAPAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:["KE2133"], origin:"PUS", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"PVG", city:"上海浦東", airportName:"Shanghai Pudong International Airport", country:"China", coords:[31.1443,121.8083], region:"CHINA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"PUS", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"BKK", city:"曼谷", airportName:"Suvarnabhumi Airport", country:"Thailand", coords:[13.69,100.7501], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:[], origin:"PUS", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"BKK", city:"曼谷", airportName:"Suvarnabhumi Airport", country:"Thailand", coords:[13.69,100.7501], region:"SOUTHEAST_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:[], origin:"PUS", airline:"KE", alliance:"SkyTeam", status:"SUSPENDED" },
     { iata:"NRT", city:"東京成田", airportName:"Narita International Airport", country:"Japan", coords:[35.772,140.3929], region:"JAPAN", frequency:null, frequencyType:"weekly", lastUpdated:"2026-07", flightNumbers:["KE2125"], origin:"CJU", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
     { iata:"UBN", city:"烏蘭巴托", airportName:"Ulaanbaatar Chinggis Khaan International Airport", country:"Mongolia", coords:[47.6469,106.8198], region:"CENTRAL_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"BCN", city:"巴塞隆納", airportName:"Josep Tarradellas Barcelona-El Prat Airport", country:"Spain", coords:[41.2974,2.0833], region:"EUROPE", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
-    { iata:"TAS", city:"塔什干", airportName:"Tashkent International Airport", country:"Uzbekistan", coords:[41.2579,69.2811], region:"CENTRAL_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"ACTIVE" },
+    { iata:"BCN", city:"巴塞隆納", airportName:"Josep Tarradellas Barcelona-El Prat Airport", country:"Spain", coords:[41.2974,2.0833], region:"EUROPE", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"SUSPENDED" },
+    { iata:"TAS", city:"塔什干", airportName:"Tashkent International Airport", country:"Uzbekistan", coords:[41.2579,69.2811], region:"CENTRAL_ASIA", frequency:null, frequencyType:"weekly", lastUpdated:"2026-08", flightNumbers:[], origin:"ICN", airline:"KE", alliance:"SkyTeam", status:"SUSPENDED" },
   ]
 };
+
+// ─── 大韓航空 KE：補齊仁川、釜山與濟州國際直飛航線 ─────────────────────
+// 依 2026-08 班表整理；只記錄 KE 實際執飛航班，不納入純聯營班號。
+(() => {
+  const routes = [
+    ["ICN", "CSX", "ACTIVE", ["KE145"]],
+    ["ICN", "DLC", "ACTIVE", ["KE873"]],
+    ["ICN", "FOC", "ACTIVE", ["KE127"]],
+    ["ICN", "HGH", "ACTIVE", ["KE107"]],
+    ["ICN", "HFE", "ACTIVE", ["KE155"]],
+    ["ICN", "KMG", "ACTIVE", ["KE161"]],
+    ["ICN", "NKG", "ACTIVE", ["KE101"]],
+    ["ICN", "WUH", "ACTIVE", ["KE165"]],
+    ["ICN", "XMN", "ACTIVE", ["KE125"]],
+    ["ICN", "YNJ", "ACTIVE", ["KE115"]],
+    ["ICN", "DYG", "ACTIVE", ["KE163"]],
+    ["ICN", "CGO", "ACTIVE", ["KE133"]],
+    ["ICN", "KTI", "ACTIVE", ["KE689"]],
+    ["ICN", "NGS", "ACTIVE", ["KE2191"]],
+    ["ICN", "LIS", "SEASONAL", ["KE921"]],
+    ["ICN", "RMQ", "SCHEDULED", ["KE2031"], "2026-10-25"],
+    ["ICN", "CXR", "ACTIVE", ["KE467"]],
+    ["PUS", "PEK", "ACTIVE", ["KE2061"]],
+    ["PUS", "TAO", "ACTIVE", ["KE2081"]],
+    ["CJU", "PEK", "ACTIVE", ["KE2065"]],
+  ];
+
+  const existing = new Set(window.AIRLINE_DATA.KE.map(route => `${route.origin}:${route.iata}`));
+  routes.forEach(([origin, iata, status, flightNumbers, effectiveDate]) => {
+    const key = `${origin}:${iata}`;
+    if (existing.has(key)) return;
+    const airport = window.AIRPORT_MASTER[iata];
+    if (!airport) throw new Error(`KE route airport metadata missing: ${iata}`);
+    window.AIRLINE_DATA.KE.push({
+      iata,
+      ...airport,
+      frequency: null,
+      frequencyType: "weekly",
+      lastUpdated: "2026-08",
+      flightNumbers,
+      origin,
+      airline: "KE",
+      alliance: "SkyTeam",
+      status,
+      ...(effectiveDate ? { effectiveDate } : {}),
+    });
+  });
+})();
 
 // ─── 廈門航空 MF：三大基地國際／地區直飛航線 ─────────────────────────────
 // 依 2026-08 班表整理；同一航點由不同基地出發時保留為獨立航線。
@@ -1026,6 +1085,145 @@ window.AIRLINE_DATA = {
   if (!window.AIRPORT_MASTER[iata]) window.AIRPORT_MASTER[iata] = { city, airportName, country, coords:[lat,lon], region };
 });
 
+// MU and wholly-owned Shanghai Airlines (FM) share one selector in the UI.
+// Keep one record per origin/destination and merge both carriers' operating
+// flight numbers into that record. Unknown numbers are deliberately left blank
+// instead of storing a codeshare or an unverified timetable number.
+(() => {
+  const routeSpecs = [
+    // Shanghai Pudong / Shanghai Airlines gaps and operating-flight numbers.
+    ["PVG","BKI","ACTIVE",null,["FM867"]],
+    ["PVG","PEN","ACTIVE",null,["FM877"]],
+    ["PVG","HKT","ACTIVE",null,["FM831","FM857","FM875"]],
+    ["PVG","HKG","ACTIVE",null,["FM811"]],
+    ["PVG","MFM","ACTIVE",null,["FM805"]],
+    ["PVG","BKK","ACTIVE",null,["FM847"]],
+
+    // Shanghai Hongqiao international services.
+    ["SHA","HND","ACTIVE",14,["MU537","FM815"]],
+    ["SHA","HKG","ACTIVE",21,["MU721","MU5017","FM809"]],
+    ["SHA","MFM","ACTIVE",21,["MU239","MU2055","FM817"]],
+
+    // Xi'an MU/FM international services.
+    ["XIY","MXP","SEASONAL",3,["MU5013"]],
+    ["XIY","SVO","SEASONAL",null,["MU5009"]],
+    ["XIY","HKG","ACTIVE",null,[]],
+    ["XIY","ICN","SEASONAL",null,[]],
+    ["XIY","SIN","SEASONAL",null,[]],
+    ["XIY","HAN","SEASONAL",null,[]],
+    ["XIY","PQC","SEASONAL",null,[]],
+    ["XIY","TAS","SEASONAL",3,["MU855"]],
+    ["XIY","BUD","SEASONAL",1,["FM891"]],
+
+    // Kunming international services missing from the earlier destination-only set.
+    ["KMG","KTI","ACTIVE",null,[]],
+    ["KMG","HKG","ACTIVE",null,[]],
+    ["KMG","VTE","ACTIVE",null,[]],
+    ["KMG","KUL","ACTIVE",null,[]],
+    ["KMG","MLE","SEASONAL",null,[]],
+    ["KMG","SIN","ACTIVE",null,[]],
+    ["KMG","ICN","ACTIVE",null,[]],
+    ["KMG","CMB","SEASONAL",null,[]],
+    ["KMG","BKK","ACTIVE",null,[]],
+    ["KMG","CNX","ACTIVE",null,[]],
+    ["KMG","HAN","ACTIVE",null,[]],
+    ["KMG","SGN","ACTIVE",null,[]],
+
+    // Wuhan international services.
+    ["WUH","HKG","ACTIVE",null,[]],
+    ["WUH","KTI","SEASONAL",null,[]],
+    ["WUH","HAN","SEASONAL",null,[]],
+    ["WUH","VTE","SEASONAL",null,[]],
+    ["WUH","KUL","ACTIVE",null,[]],
+    ["WUH","SIN","SEASONAL",null,[]],
+    ["WUH","BKK","ACTIVE",null,[]],
+    ["WUH","SYD","SEASONAL",null,[]],
+
+    // Nanjing international services (Taiwan routes already exist above).
+    ["NKG","MEL","ACTIVE",null,[]],
+    ["NKG","SYD","ACTIVE",null,[]],
+    ["NKG","CDG","ACTIVE",null,[]],
+    ["NKG","HKG","ACTIVE",null,[]],
+    ["NKG","MFM","ACTIVE",null,[]],
+    ["NKG","KUL","ACTIVE",null,[]],
+    ["NKG","SIN","ACTIVE",null,[]],
+    ["NKG","PUS","SEASONAL",null,[]],
+    ["NKG","ICN","ACTIVE",null,[]],
+    ["NKG","BKK","ACTIVE",null,[]],
+    ["NKG","SGN","ACTIVE",null,[]],
+  ];
+
+  const routes = window.AIRLINE_DATA.MU;
+  routeSpecs.forEach(([origin, iata, status, frequency, flightNumbers]) => {
+    const airport = window.AIRPORT_MASTER[iata];
+    if (!airport) throw new Error(`MU/FM route airport missing from AIRPORT_MASTER: ${iata}`);
+
+    const existing = routes.find(route => route.origin === origin && route.iata === iata);
+    if (existing) {
+      existing.flightNumbers = [...new Set([...(existing.flightNumbers || []), ...flightNumbers])];
+      existing.lastUpdated = "2026-08";
+      existing.status = status;
+      existing.nonstop = true;
+      existing.stops = [];
+      if (frequency !== null) existing.frequency = frequency;
+      return;
+    }
+
+    routes.push({
+      iata,
+      ...airport,
+      frequency,
+      frequencyType:"weekly",
+      lastUpdated:"2026-08",
+      flightNumbers,
+      origin,
+      airline:"MU",
+      alliance:"SkyTeam",
+      status,
+      nonstop:true,
+      stops:[],
+    });
+  });
+})();
+
+// EY self-operated routes and announced services audited in August 2026.
+// SEZ is intentionally excluded: the AUH service is operated by Air Seychelles.
+(() => {
+  const routeSpecs = [
+    ["PVG", "ACTIVE", null, [], null, true, []],
+    ["DBB", "SEASONAL", 2, ["EY721"], null, true, []],
+    ["YYC", "SCHEDULED", 4, ["EY29"], "2026-11-03", true, []],
+    ["ASM", "SCHEDULED", 4, ["EY733"], "2026-11-07", true, []],
+    ["ACC", "SCHEDULED", 4, ["EY751"], "2027-03-24", true, []],
+    ["FIH", "SCHEDULED", 3, ["EY797"], "2027-03-18", true, []],
+    ["LOS", "SCHEDULED", 7, ["EY781"], "2027-03-18", true, []],
+    ["HRE", "SCHEDULED", 3, ["EY777"], "2027-03-24", true, []],
+    ["FBM", "SCHEDULED", 3, ["EY777"], "2027-03-24", false, ["HRE"]],
+  ];
+
+  routeSpecs.forEach(([iata, status, frequency, flightNumbers, effectiveDate, nonstop, stops]) => {
+    const airport = window.AIRPORT_MASTER[iata];
+    if (!airport) throw new Error(`EY route airport missing from AIRPORT_MASTER: ${iata}`);
+    if (window.AIRLINE_DATA.EY.some(route => route.origin === "AUH" && route.iata === iata)) return;
+
+    window.AIRLINE_DATA.EY.push({
+      iata,
+      ...airport,
+      frequency,
+      frequencyType:"weekly",
+      lastUpdated:"2026-08",
+      flightNumbers,
+      origin:"AUH",
+      airline:"EY",
+      alliance:"Independent",
+      status,
+      ...(effectiveDate ? { effectiveDate } : {}),
+      nonstop,
+      stops,
+    });
+  });
+})();
+
 (() => {
   const routeGroups = [
     ["ACTIVE", "EUROPE", "BER SZG VIE PRG BSL BRE CGN DUS FRA HAM HAJ MUC NUE STR BUD KRK WAW GVA ZRH SOF VAR RMO OTP CLJ CND TSR KZN VKO LED CPH TLL HEL DUB RIX VNO OSL GOT ARN BHX EDI LGW LHR STN MAN TIA SJJ ZAG ATH SKG BRI BLQ CTA MXP NAP PMO FCO TRN VCE PRN MLA TGD LIS OPO SKP BEG LJU BCN BIO MAD AGP SVQ VLC BRU BOD LYS MRS NCE CDG TLS LUX AMS".split(" ")],
@@ -1038,7 +1236,7 @@ window.AIRLINE_DATA = {
     ["ACTIVE", "JAPAN", "KIX HND NRT".split(" ")],
     ["ACTIVE", "NORTHEAST_ASIA", "HKG ICN TPE".split(" ")],
     ["ACTIVE", "SOUTHEAST_ASIA", "DPS CGK KUL MNL SIN BKK HKT HAN SGN".split(" ")],
-    ["ACTIVE", "CENTRAL_ASIA", "ALA BSZ DYU ASB SKD TAS UGC NQZ UBN".split(" ")],
+    ["ACTIVE", "CENTRAL_ASIA", "ALA BSZ DYU ASB SKD TAS UGC NQZ UBN HSA".split(" ")],
     ["SEASONAL", "EUROPE", "LEJ MSQ BLL RVN DBV TIV OHD".split(" ")],
     ["SEASONAL", "NORTH_AMERICA", "CUN HAV".split(" ")],
     ["SEASONAL", "AFRICA", "NBJ FIH LBV PNR JUB CKY".split(" ")],
@@ -1052,8 +1250,8 @@ window.AIRLINE_DATA = {
       const airport = window.AIRPORT_MASTER[iata];
       if (!airport) throw new Error(`TK route airport missing from AIRPORT_MASTER: ${iata}`);
       return {
-        iata, ...airport, region:airport.region || region, frequency:null, frequencyType:"weekly", lastUpdated:"2026-08",
-        flightNumbers:iata === "TPE" ? ["TK24","TK124"] : [], origin:"IST", airline:"TK",
+        iata, ...airport, region:airport.region || region, frequency:iata === "HSA" ? 1 : null, frequencyType:"weekly", lastUpdated:"2026-08",
+        flightNumbers:iata === "TPE" ? ["TK24","TK124"] : iata === "HSA" ? ["TK256"] : [], origin:"IST", airline:"TK",
         alliance:"Star Alliance", nonstop:true, status,
       };
     })
